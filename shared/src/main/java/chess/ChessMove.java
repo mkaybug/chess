@@ -35,4 +35,22 @@ public class ChessMove {
     public ChessPiece.PieceType getPromotionPiece() {
         throw new RuntimeException("Not implemented");
     }
+
+    /**
+     * Returns a string representation of the ChessMove.
+     *
+     * @return A string representation of the ChessMove.
+     */
+    @Override
+    public String toString() {
+        String [] myArray = {"Hello", "World"};
+        return myArray[0];
+
+//        return "Possible moves: (" + getEndPosition().getRow() + ", " +
+//                getEndPosition().getColumn() + ")"
+//                "Row: " + getStartPosition().getRow() +
+//                ", endPosition=" + getEndPosition() +
+//                ", promotionPiece=" + getPromotionPiece() +
+//                '}';
+    }
 }
