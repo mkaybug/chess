@@ -59,7 +59,7 @@ public class ChessPiece {
             return calculateRookMoves(board, myPosition);
         }
         if (board.getPiece(myPosition).getPieceType() == ChessPiece.PieceType.QUEEN) {
-//            return calculateQueenMoves(board, myPosition);
+            return calculateQueenMoves(board, myPosition);
         }
         if (board.getPiece(myPosition).getPieceType() == ChessPiece.PieceType.KNIGHT) {
 //            return calculateKnightMoves(board, myPosition);
@@ -180,6 +180,14 @@ public class ChessPiece {
             }
             currentPosition = endPosition;
         }
+
+        return possibleMoves;
+    }
+
+    public ArrayList<ChessMove> calculateQueenMoves(ChessBoard board, ChessPosition startPosition) {
+        ArrayList<ChessMove> possibleMoves = new ArrayList<>();
+        possibleMoves.addAll(calculateBishopMoves(board, startPosition));
+        possibleMoves.addAll(calculateRookMoves(board, startPosition));
 
         return possibleMoves;
     }
