@@ -110,9 +110,18 @@ public class ChessBoard {
         }
         result.append("}");
         return result.toString();
-//        return "ChessBoard{" + "chessboard=" + Arrays.toString(chessboard) + '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(this == o) return true;
+        if(o == null || getClass() != o.getClass()) return false;
+        ChessBoard that = (ChessBoard) o;
+        return Arrays.equals(chessboard, that.chessboard);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(chessboard);
     }
 }
-
-// FIXME Where I left off, I believe I have completed the ChessBoard class for now. Time to move on to ChessMove.
-// FIXME I created a PracticeMain.java so I can mess around with things easier. I'm calling my methods from there for now.
