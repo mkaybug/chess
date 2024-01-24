@@ -366,10 +366,10 @@ public class ChessPiece {
 
             if (board.getPiece(rightDiagonal) != null && board.getPiece(rightDiagonal).pieceColor != board.getPiece(startPosition).pieceColor) {
                 if (rightDiagonal.getRow() == 1) {
-                    possibleMoves.add(new ChessMove(startPosition, endPosition, PieceType.BISHOP));
-                    possibleMoves.add(new ChessMove(startPosition, endPosition, PieceType.QUEEN));
-                    possibleMoves.add(new ChessMove(startPosition, endPosition, PieceType.ROOK));
-                    possibleMoves.add(new ChessMove(startPosition, endPosition, PieceType.KNIGHT));
+                    possibleMoves.add(new ChessMove(startPosition, rightDiagonal, PieceType.BISHOP));
+                    possibleMoves.add(new ChessMove(startPosition, rightDiagonal, PieceType.QUEEN));
+                    possibleMoves.add(new ChessMove(startPosition, rightDiagonal, PieceType.ROOK));
+                    possibleMoves.add(new ChessMove(startPosition, rightDiagonal, PieceType.KNIGHT));
                 }
                 else {
                     possibleMoves.add(new ChessMove(startPosition, rightDiagonal, null));
@@ -378,10 +378,10 @@ public class ChessPiece {
 
             if (board.getPiece(leftDiagonal) != null && board.getPiece(leftDiagonal).pieceColor != board.getPiece(startPosition).pieceColor) {
                 if (leftDiagonal.getRow() == 1) {
-                    possibleMoves.add(new ChessMove(startPosition, endPosition, PieceType.BISHOP));
-                    possibleMoves.add(new ChessMove(startPosition, endPosition, PieceType.QUEEN));
-                    possibleMoves.add(new ChessMove(startPosition, endPosition, PieceType.ROOK));
-                    possibleMoves.add(new ChessMove(startPosition, endPosition, PieceType.KNIGHT));
+                    possibleMoves.add(new ChessMove(startPosition, leftDiagonal, PieceType.BISHOP));
+                    possibleMoves.add(new ChessMove(startPosition, leftDiagonal, PieceType.QUEEN));
+                    possibleMoves.add(new ChessMove(startPosition, leftDiagonal, PieceType.ROOK));
+                    possibleMoves.add(new ChessMove(startPosition, leftDiagonal, PieceType.KNIGHT));
                 }
                 else {
                     possibleMoves.add(new ChessMove(startPosition, leftDiagonal, null));

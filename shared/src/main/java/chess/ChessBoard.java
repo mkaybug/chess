@@ -117,11 +117,11 @@ public class ChessBoard {
         if(this == o) return true;
         if(o == null || getClass() != o.getClass()) return false;
         ChessBoard that = (ChessBoard) o;
-        return Arrays.equals(chessboard, that.chessboard);
+        return Arrays.deepEquals(chessboard, that.chessboard);
     }
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(chessboard);
+        return Arrays.deepHashCode(chessboard);
     }
 }
