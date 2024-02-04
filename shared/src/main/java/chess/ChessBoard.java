@@ -9,7 +9,7 @@ import java.util.Arrays;
  * signature of the existing methods.
  */
 public class ChessBoard {
-    private ChessPiece[][] chessboard = new ChessPiece[8][8];
+    private ChessPiece[][] boardSquares = new ChessPiece[8][8];
     public ChessBoard() {
         // FIXME I may later want to reset the board as soon as a new board is created
         // this.resetBoard();
@@ -22,7 +22,7 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        chessboard[position.getRow() - 1][position.getColumn() -1] = piece;
+        boardSquares[position.getRow() - 1][position.getColumn() -1] = piece;
     }
 
     /**
@@ -34,7 +34,7 @@ public class ChessBoard {
      */
     public ChessPiece getPiece(ChessPosition position) {
 
-        return chessboard[position.getRow() - 1][position.getColumn() - 1];
+        return boardSquares[position.getRow() - 1][position.getColumn() - 1];
     }
 
     /**
@@ -89,18 +89,18 @@ public class ChessBoard {
     }
 
     public void removePiece(ChessPosition position) {
-        chessboard[position.getRow()][position.getColumn()] = null;
+        boardSquares[position.getRow()][position.getColumn()] = null;
     }
 
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder("ChessBoard{");
+        StringBuilder result = new StringBuilder("ChessBoard{\n");
 
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col ++) {
-                ChessPiece piece = chessboard[row][col];
+                ChessPiece piece = boardSquares[row][col];
                 if (piece != null) {
-                    result.append("(").append(piece.toString()).append(")");
+                    result.append(piece.toString());
                 }
                 else {
                     result.append("[]");
@@ -117,11 +117,11 @@ public class ChessBoard {
         if(this == o) return true;
         if(o == null || getClass() != o.getClass()) return false;
         ChessBoard that = (ChessBoard) o;
-        return Arrays.deepEquals(chessboard, that.chessboard);
+        return Arrays.deepEquals(boardSquares, that.boardSquares);
     }
 
     @Override
     public int hashCode() {
-        return Arrays.deepHashCode(chessboard);
+        return Arrays.deepHashCode(boardSquares);
     }
 }
