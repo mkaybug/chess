@@ -33,7 +33,6 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-
         return boardSquares[position.getRow() - 1][position.getColumn() - 1];
     }
 
@@ -80,8 +79,8 @@ public class ChessBoard {
     }
 
     public void clearBoard() {
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
+        for (int row = 1; row < 9; row++) {
+            for (int col = 1; col < 9; col++) {
                 ChessPosition position = new ChessPosition(row, col);
                 removePiece(position);
             }
@@ -89,7 +88,7 @@ public class ChessBoard {
     }
 
     public void removePiece(ChessPosition position) {
-        boardSquares[position.getRow()][position.getColumn()] = null;
+        boardSquares[position.getRow() - 1][position.getColumn() - 1] = null;
     }
 
     @Override

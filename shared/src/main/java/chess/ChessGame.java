@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.ArrayList;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -59,7 +60,23 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        ChessPosition startPosition = move.getStartPosition();
+        if (startPosition.getRow() < 1 || startPosition.getRow() > 8 || startPosition.getColumn() < 1 || startPosition.getColumn() > 8) {
+            throw new InvalidMoveException(("Out of bounds move"));
+        }
 
+        ChessPiece piece = chessBoard.getPiece(startPosition);
+        System.out.println(piece.toString());
+
+        Collection<ChessMove> validMoves = piece.pieceMoves(chessBoard, startPosition);
+//        if (validMoves == null || !validMoves.contains(move) ) {
+//            System.out.println("Throwing exception");
+//            throw new InvalidMoveException("Invalid move");
+//        }
+
+        chessBoard.addPiece(move.getEndPosition(), piece);
+        chessBoard.removePiece(startPosition);
+        System.out.println(chessBoard.toString());
     }
 
     /**
