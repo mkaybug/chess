@@ -66,13 +66,12 @@ public class ChessGame {
         }
 
         ChessPiece piece = chessBoard.getPiece(startPosition);
-        System.out.println(piece.toString());
 
         Collection<ChessMove> validMoves = piece.pieceMoves(chessBoard, startPosition);
-//        if (validMoves == null || !validMoves.contains(move) ) {
-//            System.out.println("Throwing exception");
-//            throw new InvalidMoveException("Invalid move");
-//        }
+        if (validMoves == null || !validMoves.contains(move) ) {
+            System.out.println("Throwing exception");
+            throw new InvalidMoveException("Invalid move");
+        }
 
         chessBoard.addPiece(move.getEndPosition(), piece);
         chessBoard.removePiece(startPosition);
