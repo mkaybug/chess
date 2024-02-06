@@ -95,14 +95,14 @@ public class ChessBoard {
     public String toString() {
         StringBuilder result = new StringBuilder("ChessBoard{\n");
 
-        for (int row = 0; row < 8; row++) {
+        for (int row = 7; row >= 0; row--) {
             for (int col = 0; col < 8; col ++) {
                 ChessPiece piece = boardSquares[row][col];
                 if (piece != null) {
                     result.append(piece.toString());
                 }
                 else {
-                    result.append("[]");
+                    result.append("[ ]");
                 }
             }
             result.append("\n");
