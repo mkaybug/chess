@@ -190,6 +190,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
+        // If teamColor is in check and has no legal move, checkmate = true
         // Check all moves for the current team.
         // If one of the pieces has a valid move, then return false.
         if (isInCheck(teamColor)) {
@@ -222,7 +223,7 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        // teamColor is not in check and has no legal move
+        // If teamColor is not in check and has no legal move, stalemate = true
         if (!isInCheck(teamColor)) {
             for (int i = 1; i < 9; i++) {
                 for (int j = 1; j < 9; j++) {

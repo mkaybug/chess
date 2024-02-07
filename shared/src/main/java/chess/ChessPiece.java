@@ -74,6 +74,13 @@ public class ChessPiece {
         return new ArrayList<>();
     }
 
+    /**
+     * Calculates all possible bishop moves
+     *
+     * @param board The chessboard
+     * @param startPosition The starting position of the bishop to be moved
+     * @return ArrayList of valid moves
+     */
     public ArrayList<ChessMove> calculateBishopMoves(ChessBoard board, ChessPosition startPosition) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
         int[] rowAdvancements = {1, 1, -1, -1};
@@ -101,6 +108,14 @@ public class ChessPiece {
         return possibleMoves;
     }
 
+    /**
+     * Calculates all possible rook moves
+     * Near identical functionality to calculateBishopMoves()
+     *
+     * @param board The chessboard
+     * @param startPosition The starting position of the rook to be moved
+     * @return ArrayList of valid moves
+     */
     public ArrayList<ChessMove> calculateRookMoves(ChessBoard board, ChessPosition startPosition) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
         int[] rowAdvancements = {0, 0, 1, -1};
@@ -128,6 +143,14 @@ public class ChessPiece {
         return possibleMoves;
     }
 
+    /**
+     * Calculates all possible queen moves
+     * Implements functionality of calculateBishopMoves() and calculateRookMoves()
+     *
+     * @param board The chessboard
+     * @param startPosition The starting position of the queen to be moved
+     * @return ArrayList of valid moves
+     */
     public ArrayList<ChessMove> calculateQueenMoves(ChessBoard board, ChessPosition startPosition) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
         possibleMoves.addAll(calculateBishopMoves(board, startPosition));
@@ -136,6 +159,13 @@ public class ChessPiece {
         return possibleMoves;
     }
 
+    /**
+     * Calculates all possible king moves
+     *
+     * @param board The chessboard
+     * @param startPosition The starting position of the king to be moved
+     * @return ArrayList of valid moves
+     */
     public ArrayList<ChessMove> calculateKingMoves(ChessBoard board, ChessPosition startPosition) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
         int[] rowAdvancements = {1, 0, -1, -1, -1, 0, 1, 1};
@@ -153,6 +183,14 @@ public class ChessPiece {
         return possibleMoves;
     }
 
+    /**
+     * Calculates all possible knight moves
+     * Near identical functionality to calculateKingMoves()
+     *
+     * @param board The chessboard
+     * @param startPosition The starting position of the knight to be moved
+     * @return ArrayList of valid moves
+     */
     public ArrayList<ChessMove> calculateKnightMoves(ChessBoard board, ChessPosition startPosition) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
         int[] rowAdvancements = {2, 1, -1, -2, -2, -1, 1, 2};
@@ -170,6 +208,14 @@ public class ChessPiece {
         return possibleMoves;
     }
 
+    /**
+     * Calculates all possible pawn moves
+     * Near identical functionality to calculatePawnMoves()
+     *
+     * @param board The chessboard
+     * @param startPosition The starting position of the pawn to be moved
+     * @return ArrayList of valid moves
+     */
     public ArrayList<ChessMove> calculatePawnMoves(ChessBoard board, ChessPosition startPosition) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
         ArrayList<ChessPosition> endPositions = new ArrayList<>();

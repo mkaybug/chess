@@ -78,6 +78,9 @@ public class ChessBoard {
         addPiece(new ChessPosition(7, 8), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
     }
 
+    /**
+     * Removes all pieces from the board
+     */
     public void clearBoard() {
         for (int row = 1; row < 9; row++) {
             for (int col = 1; col < 9; col++) {
@@ -87,6 +90,11 @@ public class ChessBoard {
         }
     }
 
+    /**
+     * Removes a specified piece from the board
+     *
+     * @param position The position of the piece to be removed
+     */
     public void removePiece(ChessPosition position) {
         boardSquares[position.getRow() - 1][position.getColumn() - 1] = null;
     }
