@@ -50,22 +50,29 @@ public class ChessGame {
         ChessPiece piece = chessBoard.getPiece(startPosition);
         ArrayList<ChessMove> validMoves = new ArrayList<>();
 
-        // Funneling pieceMoves for actually valid moves
+        // Funneling pieceMoves() for actually valid moves
         if (piece != null) {
             Collection<ChessMove> possibleMoves = piece.pieceMoves(chessBoard, startPosition);
 
             for (ChessMove move : possibleMoves) {
                 ChessBoard testBoard = new ChessBoard();
-
+                // Clone chessBoard and test out each move -> using deep copy
                 for (int i = 1; i < 9; i++) {
                     for (int j = 1; j < 9; j++) {
                         testBoard.addPiece(new ChessPosition(i, j), chessBoard.getPiece(new ChessPosition(i, j)));
                     }
                 }
 
-                testBoard.addPiece(move.getEndPosition(), piece);
+                // Making the test move, if the piece is a pawn and has reached the other side of the board, promote
+                if(piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+                    testBoard.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
+                }
+                else {
+                    testBoard.addPiece(move.getEndPosition(), piece);
+                }
                 testBoard.removePiece(startPosition);
 
+                // Test to see if this move puts our king in check, if not, add to validMoves
                 ChessPosition kingPosition = findKing(testBoard, piece.getTeamColor());
 
                 if(!calculateIsInCheck(testBoard, kingPosition)) {
@@ -87,6 +94,7 @@ public class ChessGame {
         ChessPiece piece = chessBoard.getPiece(startPosition);
         Collection<ChessMove> possibleMoves = validMoves(move.getStartPosition());
 
+        // Invalid move cases
         if (possibleMoves == null) {
             throw new InvalidMoveException();
         }
@@ -99,9 +107,16 @@ public class ChessGame {
             throw new InvalidMoveException();
         }
 
-        chessBoard.addPiece(move.getEndPosition(), piece);
+        // Move the piece, if it is a pawn and has reached the other side of the board, promote it
+        if(piece.getPieceType() == ChessPiece.PieceType.PAWN && move.getPromotionPiece() != null) {
+            chessBoard.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
+        }
+        else {
+            chessBoard.addPiece(move.getEndPosition(), piece);
+        }
         chessBoard.removePiece(startPosition);
 
+        // Move on to the other player's turn
         if (teamTurn == TeamColor.WHITE) {
             teamTurn = TeamColor.BLACK;
         }
