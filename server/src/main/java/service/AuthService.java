@@ -14,21 +14,18 @@ public class AuthService {
   }
 
   public AuthData addAuth(AuthData auth) throws DataAccessException {
-    return authDAO.addAuth(auth);
+    return authDataAccess.addAuth(auth);
   }
 
   public AuthData getAuth(String authToken) throws DataAccessException {
-    // Add validation or additional logic if needed
-    return authDAO.getAuth(authToken);
+    return authDataAccess.getAuth(authToken);
   }
 
   public void deleteAuthToken(String authToken) throws DataAccessException {
-    // Add validation or additional logic if needed
-    authDAO.deleteAuthToken(authToken);
+    authDataAccess.deleteAuthToken(authToken);
   }
 
   public void deleteAllAuthTokens() throws DataAccessException {
-    // Add validation or additional logic if needed
-    authDAO.deleteAllAuthTokens();
+    authDataAccess.deleteAllAuthTokens();
   }
 }
