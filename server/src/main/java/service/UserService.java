@@ -14,21 +14,33 @@ public class UserService {
     this.userDataAccess = userDataAccess;
   }
   public AuthData register(UserData user) throws DataAccessException {
-    return new AuthData("fakeAuth", "username");
-  }
-  public AuthData login(UserData user) {
-    return new AuthData("fakeAuth", "username");
-  }
-  public void logout(UserData user) {
+    // Check if user already exists
+    UserData existingUser = userDataAccess.getUsername(user.username());
+    if (existingUser != null) {
+      throw new DataAccessException("User already exists.");
+    }
 
+    userDataAccess.addUser(user);
+
+    return new AuthData(AuthTokenGenerator.generateAuthToken(), user.username());
+  }
+  public AuthData login(UserData user) throws DataAccessException {
+    // Check if user already exists
+    UserData existingUser = userDataAccess.getUsername(user.username());
+    if (existingUser == null) {
+      throw new DataAccessException("User doesn't exist.");
+    }
+    else {
+      return new AuthData(AuthTokenGenerator.generateAuthToken(), user.username());
+    }
   }
 
   public UserData addUser(UserData user) throws DataAccessException {
     return userDataAccess.addUser(user);
   }
 
-  public UserData getUsername(String username) throws DataAccessException {
-    return userDataAccess.getUsername(username);
+  public Collection<UserData> listUsers() throws DataAccessException {
+    return userDataAccess.listUsers();
   }
 
   public void deleteUser(String username) throws DataAccessException {

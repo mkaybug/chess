@@ -1,14 +1,11 @@
 package server.handler;
 
-import com.google.gson.Gson;
 import service.AuthService;
 import service.GameService;
 import service.UserService;
 import spark.Request;
 import spark.Response;
 import dataAccess.DataAccessException;
-
-import javax.xml.crypto.Data;
 
 public class DatabaseHandler {
   private final AuthService authService;
@@ -32,6 +29,5 @@ public class DatabaseHandler {
       response.status(500);
       return e.getMessage();
     }
-    return null;
   }
 }

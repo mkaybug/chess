@@ -13,6 +13,18 @@ public class AuthService {
     this.authDataAccess = authDataAccess;
   }
 
+  // logout
+//  public void logout(AuthData auth) throws DataAccessException {
+//    // Check if user already exists
+//    UserData existingUser = userDataAccess.getUsername(auth.username());
+//    if (existingUser == null) {
+//      throw new DataAccessException("User doesn't exist.");
+//    }
+//    else {
+//      auth.delete
+//    }
+//  }
+
   public AuthData addAuth(AuthData auth) throws DataAccessException {
     return authDataAccess.addAuth(auth);
   }

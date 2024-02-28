@@ -3,10 +3,12 @@ package dataAccess;
 
 import model.UserData;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class MemoryUserDAO implements UserDAO {
-  private final HashMap<String, UserData> userDataMap = new HashMap<>();
+  private final HashMap<String, UserData> userDataMap = new LinkedHashMap<>();
 
   // Insert user (username, password, and email)
   public UserData addUser(UserData user) {
@@ -19,6 +21,11 @@ public class MemoryUserDAO implements UserDAO {
   // Select user using username
   public UserData getUsername(String username) {
     return userDataMap.get(username);
+  }
+
+  // Select all games
+  public Collection<UserData> listUsers() {
+    return userDataMap.values();
   }
 
   // Delete user using username
