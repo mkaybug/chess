@@ -25,13 +25,14 @@ public class AuthService {
   }
 
   public void logout(AuthData auth) throws DataAccessException {
-    // Check if auth already exists
-    AuthData existingUser = authenticateUser(auth);
-    if (existingUser == null) {
-      throw new DataAccessException("Already logged out.");
-    }
-    else {
+    // Authenticate user
+    try {
+      authenticateUser(auth);
       deleteAuthToken(auth.authToken());
+    }
+    // If auth doesn't exist, throw error
+    catch (DataAccessException e) {
+      throw new DataAccessException("Already logged out.");
     }
   }
 

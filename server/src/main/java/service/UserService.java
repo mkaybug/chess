@@ -1,30 +1,46 @@
 package service;
 
-import dataAccess.DataAccessException;
-import dataAccess.UserDAO;
+import dataAccess.*;
 import model.AuthData;
 import model.UserData;
-import service.AuthService;
 
 import java.util.Collection;
+import java.util.Objects;
 
 public class UserService {
+  private final AuthDAO authDataAccess;
+  private final GameDAO gameDataAccess;
   private final UserDAO userDataAccess;
 
-  public UserService(UserDAO userDataAccess) {
+  public UserService(AuthDAO authDataAccess, GameDAO gameDataAccess, UserDAO userDataAccess) {
+    this.authDataAccess = authDataAccess;
+    this.gameDataAccess = gameDataAccess;
     this.userDataAccess = userDataAccess;
   }
 
-  // FIXME register() and login() need to add authTokens to the database, not just return them
+  public AuthData authenticateUser(AuthData auth) throws DataAccessException {
+    // Check if auth already exists
+    AuthData existingAuth = getAuth(auth.authToken());
+    if (existingAuth == null) {
+      throw new DataAccessException("No authentication.");
+    }
+    else {
+      return existingAuth;
+    }
+  }
+
   public AuthData register(UserData user) throws DataAccessException {
     // Check if user already exists
     UserData existingUser = getUsername(user.username());
     if (existingUser != null) {
       throw new DataAccessException("User already exists.");
     }
-
+    // Add user to database
     addUser(user);
-    return new AuthData(AuthTokenGenerator.generateAuthToken(), user.username());
+    // Create auth token, add to database and return it
+    AuthData auth = new AuthData(AuthTokenGenerator.generateAuthToken(), user.username());
+//    authService.addAuth(auth);
+    return auth;
   }
   public AuthData login(UserData user) throws DataAccessException {
     // Check if user already exists
@@ -33,8 +49,32 @@ public class UserService {
       throw new DataAccessException("User doesn't exist.");
     }
     else {
-      return new AuthData(AuthTokenGenerator.generateAuthToken(), user.username());
+      if (Objects.equals(existingUser.password(), user.password())) {
+        // Create auth token, add to database and return it
+        AuthData auth = new AuthData(AuthTokenGenerator.generateAuthToken(), user.username());
+//        authService.addAuth(auth);
+        return auth;
+      }
+      else {
+        throw new DataAccessException("Invalid password.");
+      }
     }
+  }
+
+  public void logout(AuthData auth) throws DataAccessException {
+    // Authenticate user
+    try {
+      authenticateUser(auth);
+      deleteAuthToken(auth.authToken());
+    }
+    // If auth doesn't exist, throw error
+    catch (DataAccessException e) {
+      throw new DataAccessException("Already logged out.");
+    }
+  }
+
+  public AuthData addAuth(AuthData auth) throws DataAccessException {
+    return authDataAccess.addAuth(auth);
   }
 
   public UserData addUser(UserData user) throws DataAccessException {
@@ -45,16 +85,15 @@ public class UserService {
     return userDataAccess.getUsername(username);
   }
 
-  public Collection<UserData> listUsers() throws DataAccessException {
-    return userDataAccess.listUsers();
+  public AuthData getAuth(String authToken) throws DataAccessException {
+    return authDataAccess.getAuth(authToken);
   }
 
   public void deleteUser(String username) throws DataAccessException {
     userDataAccess.deleteUser(username);
   }
 
-  public void deleteAllUsers() throws DataAccessException {
-    userDataAccess.deleteAllUsers();
+  public void deleteAuthToken(String authToken) throws DataAccessException {
+    authDataAccess.deleteAuthToken(authToken);
   }
-
 }

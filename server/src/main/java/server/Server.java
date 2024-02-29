@@ -14,16 +14,15 @@ import server.handler.DatabaseHandler;
 import spark.*;
 
 public class Server {
-    private final AuthService authService = new AuthService(new MemoryAuthDAO());
-    private final GameService gameService = new GameService(new MemoryGameDAO());
-    private final UserService userService = new UserService(new MemoryUserDAO());
+    private final GameService gameService = new GameService(new MemoryAuthDAO(), new MemoryGameDAO(), new MemoryUserDAO());
+    private final UserService userService = new UserService(new MemoryAuthDAO(), new MemoryGameDAO(), new MemoryUserDAO());
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
 
-        Spark.delete("/db", (request, response) -> new DatabaseHandler(authService, gameService, userService).clear(request, response));
+//        Spark.delete("/db", (request, response) -> new DatabaseHandler(authService, gameService, userService).clear(request, response));
 
         // Register your endpoints and handle exceptions here.
 

@@ -18,16 +18,17 @@ public class DatabaseHandler {
     this.userService = userService;
   }
   public Object clear(Request request, Response response) {
-    try {
-      userService.deleteAllUsers();
-      authService.deleteAllAuthTokens();
-      gameService.deleteAllGames();
-      response.status(200);
-      return "Database cleared successfully.";
-    }
-    catch (DataAccessException e){
-      response.status(500);
-      return e.getMessage();
-    }
+//    try {
+//      userService.deleteAllUsers();
+//      authService.deleteAllAuthTokens();
+//      gameService.deleteAllGames();
+//      response.status(200);
+//      return "Database cleared successfully.";
+//    }
+//    catch (DataAccessException e){
+//      response.status(500);
+//      return e.getMessage();
+//    }
+    return null;
   }
 }
