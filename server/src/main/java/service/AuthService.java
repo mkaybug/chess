@@ -12,18 +12,28 @@ public class AuthService {
   public AuthService(AuthDAO authDataAccess) {
     this.authDataAccess = authDataAccess;
   }
+  // Authenticate user
+  public AuthData authenticateUser(AuthData auth) throws DataAccessException {
+    // Check if auth already exists
+    AuthData existingAuth = getAuth(auth.authToken());
+    if (existingAuth == null) {
+      throw new DataAccessException("No authentication.");
+    }
+    else {
+      return existingAuth;
+    }
+  }
 
-  // logout
-//  public void logout(AuthData auth) throws DataAccessException {
-//    // Check if user already exists
-//    UserData existingUser = userDataAccess.getUsername(auth.username());
-//    if (existingUser == null) {
-//      throw new DataAccessException("User doesn't exist.");
-//    }
-//    else {
-//      auth.delete
-//    }
-//  }
+  public void logout(AuthData auth) throws DataAccessException {
+    // Check if auth already exists
+    AuthData existingUser = authenticateUser(auth);
+    if (existingUser == null) {
+      throw new DataAccessException("Already logged out.");
+    }
+    else {
+      deleteAuthToken(auth.authToken());
+    }
+  }
 
   public AuthData addAuth(AuthData auth) throws DataAccessException {
     return authDataAccess.addAuth(auth);
@@ -31,6 +41,10 @@ public class AuthService {
 
   public AuthData getAuth(String authToken) throws DataAccessException {
     return authDataAccess.getAuth(authToken);
+  }
+
+  public Collection<AuthData> listAuthTokens() throws DataAccessException {
+    return authDataAccess.listAuthTokens();
   }
 
   public void deleteAuthToken(String authToken) throws DataAccessException {

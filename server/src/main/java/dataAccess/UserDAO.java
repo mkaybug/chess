@@ -10,7 +10,7 @@ public interface UserDAO {
   UserData addUser(UserData user) throws DataAccessException;
   // Select username from user
   UserData getUsername(String username) throws DataAccessException;
-  // Select all games
+  // Select all users
   Collection<UserData> listUsers() throws DataAccessException;
   // Delete user
   void deleteUser(String username) throws DataAccessException;

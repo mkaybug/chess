@@ -3,6 +3,7 @@ package dataAccess;
 
 import model.AuthData;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 public class MemoryAuthDAO implements AuthDAO {
@@ -19,6 +20,10 @@ public class MemoryAuthDAO implements AuthDAO {
   // Select auth data using authToken
   public AuthData getAuth(String authToken) {
     return authDataMap.get(authToken);
+  }
+
+  public Collection<AuthData> listAuthTokens() {
+    return authDataMap.values();
   }
 
   // Delete auth data using authToken

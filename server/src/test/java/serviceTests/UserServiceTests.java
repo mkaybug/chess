@@ -2,13 +2,10 @@ package serviceTests;
 
 import dataAccess.MemoryUserDAO;
 import dataAccess.DataAccessException;
-import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.*;
-import service.AuthTokenGenerator;
 import service.UserService;
 
-import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.List;
 
