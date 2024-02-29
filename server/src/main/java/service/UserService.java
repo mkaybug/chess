@@ -4,7 +4,6 @@ import dataAccess.*;
 import model.AuthData;
 import model.UserData;
 
-import java.util.Collection;
 import java.util.Objects;
 
 public class UserService {
