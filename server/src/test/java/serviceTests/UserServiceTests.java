@@ -4,24 +4,35 @@ import dataAccess.MemoryAuthDAO;
 import dataAccess.MemoryGameDAO;
 import dataAccess.MemoryUserDAO;
 import dataAccess.DataAccessException;
+
+import model.AuthData;
+import model.GameData;
 import model.UserData;
-import org.junit.jupiter.api.*;
-import service.UserService;
+
 import service.ClearService;
+import service.GameService;
+import service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTests {
-  static final UserService userService = new UserService(new MemoryAuthDAO(), new MemoryGameDAO(), new MemoryUserDAO());
-  static final ClearService clearService = new ClearService(new MemoryAuthDAO(), new MemoryGameDAO(), new MemoryUserDAO());
+  GameService gameService = null;
+  ClearService clearService = null;
+  UserService userService = null;
 
-  // Setup
   @BeforeEach
-  void clear() throws DataAccessException {
-    clearService.deleteAllUsers();
+  void setUp() {
+    MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
+    MemoryGameDAO memoryGameDAO = new MemoryGameDAO();
+    MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
+
+    gameService = new GameService(memoryAuthDAO, memoryGameDAO, memoryUserDAO);
+    clearService = new ClearService(memoryAuthDAO, memoryGameDAO, memoryUserDAO);
+    userService = new UserService(memoryAuthDAO, memoryGameDAO, memoryUserDAO);
   }
 
   @Test
@@ -37,14 +48,42 @@ public class UserServiceTests {
 
   @Test
   void login() throws DataAccessException {
-    UserData existingUser = new UserData("existingUser", "existingPassword", "existing@gmail.com");
-    UserData wrongPasswordUser = new UserData("existingUser", "existingPassword", "existing@gmail.com");
+    UserData user = new UserData("user", "password", "email@gmail.com");
+    UserData wrongPasswordUser = new UserData("user", "wrongpassword", "email@gmail.com");
     // Negative test case -> login fails
-    assertThrows(DataAccessException.class, () -> userService.login(existingUser));
+    assertThrows(DataAccessException.class, () -> userService.login(user));
 
     // Positive test case -> login succeeds
-    userService.register(existingUser);
-    assertNotNull(userService.login(existingUser));
+    userService.register(user);
+    assertNotNull(userService.login(user));
+
+    // Negative test case -> wrong password, login fails
+    assertThrows(DataAccessException.class, () -> userService.login(wrongPasswordUser));
+  }
+
+  @Test
+  void logout() throws DataAccessException {
+    List<AuthData> expected = new ArrayList<>();
+
+    AuthData logoutAuth1 = new AuthData("token3", "username3");
+    AuthData logoutAuth2 = new AuthData("token2.1", "username2");
+
+    // Add tokens to the database
+    expected.add(userService.addAuth(new AuthData("token1", "username1")));
+    expected.add(userService.addAuth(new AuthData("token2", "username2")));
+
+    // Negative test case -> trying to delete an authToken that doesn't exist, fails
+    assertThrows(DataAccessException.class, () -> userService.logout(logoutAuth1));
+    assertThrows(DataAccessException.class, () -> userService.logout(logoutAuth2));
+
+    // Add the token we just tried to delete
+    userService.addAuth(new AuthData("token3", "username3"));
+
+    // Positive test case -> trying to delete authToken again, succeeds
+    userService.logout(logoutAuth1);
+
+    var actual = clearService.listAuthTokens();
+    assertIterableEquals(expected, actual);
   }
 
   @Test
@@ -78,15 +117,5 @@ public class UserServiceTests {
     userService.deleteUser(user.username());
     var actual = clearService.listUsers();
     assertIterableEquals(expected, actual);
-  }
-
-  @Test
-  void deleteAllUsers() throws DataAccessException {
-    userService.addUser(new UserData("mblack", "school_password", "mblack15@byu.edu"));
-    userService.addUser(new UserData("this_username", "this_password", "thisEmail@byu.edu"));
-    userService.addUser(new UserData("lastUser", "lastPassword", "CS240@byu.edu"));
-
-    clearService.deleteAllUsers();
-    assertEquals(0, clearService.listUsers().size());
   }
 }

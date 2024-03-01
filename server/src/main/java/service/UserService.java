@@ -21,7 +21,7 @@ public class UserService {
     // Check if auth already exists
     AuthData existingAuth = getAuth(auth.authToken());
     if (existingAuth == null) {
-      throw new DataAccessException("No authentication.");
+      throw new DataAccessException("Error: unauthorized");
     }
     else {
       return existingAuth;
@@ -32,31 +32,34 @@ public class UserService {
     // Check if user already exists
     UserData existingUser = getUsername(user.username());
     if (existingUser != null) {
-      throw new DataAccessException("User already exists.");
+      throw new DataAccessException("Error: already taken");
     }
     // Add user to database
     addUser(user);
     // Create auth token, add to database and return it
     AuthData auth = new AuthData(AuthTokenGenerator.generateAuthToken(), user.username());
-//    authService.addAuth(auth);
+    authDataAccess.addAuth(auth);
     return auth;
   }
   public AuthData login(UserData user) throws DataAccessException {
     // Check if user already exists
-    UserData existingUser = getUsername(user.username());
-    if (existingUser == null) {
-      throw new DataAccessException("User doesn't exist.");
-    }
-    else {
-      if (Objects.equals(existingUser.password(), user.password())) {
+    try {
+      UserData username = getUsername(user.username());
+      if (username == null) {
+        throw new DataAccessException("Error: unauthorized");
+      }
+      if (Objects.equals(username.password(), user.password())) {
         // Create auth token, add to database and return it
         AuthData auth = new AuthData(AuthTokenGenerator.generateAuthToken(), user.username());
-//        authService.addAuth(auth);
+        authDataAccess.addAuth(auth);
         return auth;
       }
       else {
-        throw new DataAccessException("Invalid password.");
+        throw new DataAccessException("Error: unauthorized");
       }
+    }
+    catch (DataAccessException e) {
+      throw new DataAccessException("Error: unauthorized");
     }
   }
 
