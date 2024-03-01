@@ -1,19 +1,15 @@
 package server.handler;
 
-import service.AuthService;
 import service.GameService;
 import service.UserService;
 import spark.Request;
 import spark.Response;
-import dataAccess.DataAccessException;
 
 public class DatabaseHandler {
-  private final AuthService authService;
   private final GameService gameService;
   private final UserService userService;
 
-  public DatabaseHandler(AuthService authService, GameService gameService, UserService userService) {
-    this.authService = authService;
+  public DatabaseHandler(GameService gameService, UserService userService) {
     this.gameService = gameService;
     this.userService = userService;
   }

@@ -95,14 +95,14 @@ public class UserServiceTests {
     expected.add(userService.addAuth(new AuthData("token2", "username2")));
 
     // Negative test case -> trying to delete an authToken that doesn't exist, fails
-    assertThrows(DataAccessException.class, () -> userService.logout(logoutAuth1));
-    assertThrows(DataAccessException.class, () -> userService.logout(logoutAuth2));
+    assertThrows(DataAccessException.class, () -> userService.logout(logoutAuth1.authToken()));
+    assertThrows(DataAccessException.class, () -> userService.logout(logoutAuth2.authToken()));
 
     // Add the token we just tried to delete
     userService.addAuth(new AuthData("token3", "username3"));
 
     // Positive test case -> trying to delete authToken again, succeeds
-    userService.logout(logoutAuth1);
+    userService.logout(logoutAuth1.authToken());
 
     var actual = clearService.listAuthTokens();
     assertIterableEquals(expected, actual);

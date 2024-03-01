@@ -17,17 +17,6 @@ public class UserService {
     this.userDataAccess = userDataAccess;
   }
 
-  public AuthData authenticateUser(AuthData auth) throws DataAccessException {
-    // Check if auth already exists
-    AuthData existingAuth = getAuth(auth.authToken());
-    if (existingAuth == null) {
-      throw new DataAccessException("Error: unauthorized");
-    }
-    else {
-      return existingAuth;
-    }
-  }
-
   public AuthData register(RegisterRequest request) throws DataAccessException {
     // If username, password, or email is empty -> throw bad request error
     if (request.username() == null || request.password() == null || request.email() == null) {
@@ -73,11 +62,15 @@ public class UserService {
     }
   }
 
-  public void logout(AuthData auth) throws DataAccessException {
-    // Authenticate user
+  public void logout(String authToken) throws DataAccessException {
     try {
-      authenticateUser(auth);
-      deleteAuthToken(auth.authToken());
+      // Authenticate user
+      AuthData existingAuth = getAuth(authToken);
+      if (existingAuth == null) {
+        throw new DataAccessException("Error: unauthorized");
+      }
+
+      deleteAuthToken(authToken);
     }
     // If auth doesn't exist, throw error
     catch (DataAccessException e) {
