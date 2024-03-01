@@ -6,6 +6,8 @@ import dataAccess.MemoryUserDAO;
 import dataAccess.DataAccessException;
 
 import model.AuthData;
+import model.LoginRequest;
+import model.RegisterRequest;
 import model.UserData;
 
 import service.ClearService;
@@ -36,28 +38,49 @@ public class UserServiceTests {
 
   @Test
   void register() throws DataAccessException {
-    UserData existingUser = new UserData("existingUser", "existingPassword", "existing@gmail.com");
+    RegisterRequest newUser = new RegisterRequest("user", "password", "email@gmail.com");
+    RegisterRequest nullUser = new RegisterRequest(null, "password", "email@gmail.com");
+    RegisterRequest nullPassword = new RegisterRequest("user", null, "email@gmail.com");
+    RegisterRequest nullEmail = new RegisterRequest("user", "password", null);
+
+    // Negative test case -> username null
+    assertThrows(DataAccessException.class, () -> userService.register(nullUser));
+
+    // Negative test case -> password null
+    assertThrows(DataAccessException.class, () -> userService.register(nullPassword));
+
+    // Negative test case -> email null
+    assertThrows(DataAccessException.class, () -> userService.register(nullEmail));
 
     // Positive test case -> register succeeds
-    assertNotNull(userService.register(existingUser));
+    assertNotNull(userService.register(newUser));
 
     // Negative test case -> register fails
-    assertThrows(DataAccessException.class, () -> userService.register(existingUser));
+    assertThrows(DataAccessException.class, () -> userService.register(newUser));
   }
 
   @Test
   void login() throws DataAccessException {
-    UserData user = new UserData("user", "password", "email@gmail.com");
-    UserData wrongPasswordUser = new UserData("user", "wrongpassword", "email@gmail.com");
-    // Negative test case -> login fails
+    LoginRequest user = new LoginRequest("user", "password");
+    LoginRequest wrongPasswordUser = new LoginRequest("user", "wrongPassword");
+    LoginRequest nullUser = new LoginRequest(null, "password");
+    LoginRequest nullPassword = new LoginRequest("user", null);
+
+    // Negative test case -> user doesn't exist, login fails
     assertThrows(DataAccessException.class, () -> userService.login(user));
 
     // Positive test case -> login succeeds
-    userService.register(user);
+    userService.register(new RegisterRequest("user", "password", "email@gmail.com"));
     assertNotNull(userService.login(user));
 
     // Negative test case -> wrong password, login fails
     assertThrows(DataAccessException.class, () -> userService.login(wrongPasswordUser));
+
+    // Negative test case -> username null
+    assertThrows(DataAccessException.class, () -> userService.login(nullUser));
+
+    // Negative test case -> password null
+    assertThrows(DataAccessException.class, () -> userService.login(nullPassword));
   }
 
   @Test

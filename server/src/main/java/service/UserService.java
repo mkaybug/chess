@@ -2,6 +2,8 @@ package service;
 
 import dataAccess.*;
 import model.AuthData;
+import model.LoginRequest;
+import model.RegisterRequest;
 import model.UserData;
 
 import java.util.Objects;
@@ -26,29 +28,39 @@ public class UserService {
     }
   }
 
-  public AuthData register(UserData user) throws DataAccessException {
+  public AuthData register(RegisterRequest request) throws DataAccessException {
+    // If username, password, or email is empty -> throw bad request error
+    if (request.username() == null || request.password() == null || request.email() == null) {
+      throw new DataAccessException("Error: bad request");
+    }
+
     // Check if user already exists
-    UserData existingUser = getUsername(user.username());
+    UserData existingUser = getUsername(request.username());
     if (existingUser != null) {
       throw new DataAccessException("Error: already taken");
     }
     // Add user to database
-    addUser(user);
+    addUser(new UserData(request.username(), request.password(), request.email()));
     // Create auth token, add to database and return it
-    AuthData auth = new AuthData(AuthTokenGenerator.generateAuthToken(), user.username());
+    AuthData auth = new AuthData(AuthTokenGenerator.generateAuthToken(), request.username());
     authDataAccess.addAuth(auth);
     return auth;
   }
-  public AuthData login(UserData user) throws DataAccessException {
+  public AuthData login(LoginRequest request) throws DataAccessException {
+    // If username, password, or email is empty -> throw bad request error
+    if (request.username() == null || request.password() == null) {
+      throw new DataAccessException("Error: unauthorized");
+    }
+
     // Check if user already exists
     try {
-      UserData username = getUsername(user.username());
+      UserData username = getUsername(request.username());
       if (username == null) {
         throw new DataAccessException("Error: unauthorized");
       }
-      if (Objects.equals(username.password(), user.password())) {
+      if (Objects.equals(username.password(), request.password())) {
         // Create auth token, add to database and return it
-        AuthData auth = new AuthData(AuthTokenGenerator.generateAuthToken(), user.username());
+        AuthData auth = new AuthData(AuthTokenGenerator.generateAuthToken(), request.username());
         authDataAccess.addAuth(auth);
         return auth;
       }
