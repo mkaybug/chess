@@ -8,12 +8,10 @@ import java.util.Objects;
 
 public class UserService {
   private final AuthDAO authDataAccess;
-  private final GameDAO gameDataAccess;
   private final UserDAO userDataAccess;
 
-  public UserService(AuthDAO authDataAccess, GameDAO gameDataAccess, UserDAO userDataAccess) {
+  public UserService(AuthDAO authDataAccess, UserDAO userDataAccess) {
     this.authDataAccess = authDataAccess;
-    this.gameDataAccess = gameDataAccess;
     this.userDataAccess = userDataAccess;
   }
 
@@ -71,7 +69,7 @@ public class UserService {
     }
     // If auth doesn't exist, throw error
     catch (DataAccessException e) {
-      throw new DataAccessException("Already logged out.");
+      throw new DataAccessException("Error: unauthorized");
     }
   }
 
@@ -89,10 +87,6 @@ public class UserService {
 
   public AuthData getAuth(String authToken) throws DataAccessException {
     return authDataAccess.getAuth(authToken);
-  }
-
-  public void deleteUser(String username) throws DataAccessException {
-    userDataAccess.deleteUser(username);
   }
 
   public void deleteAuthToken(String authToken) throws DataAccessException {

@@ -15,7 +15,7 @@ import spark.*;
 
 public class Server {
     private final GameService gameService = new GameService(new MemoryAuthDAO(), new MemoryGameDAO(), new MemoryUserDAO());
-    private final UserService userService = new UserService(new MemoryAuthDAO(), new MemoryGameDAO(), new MemoryUserDAO());
+    private final UserService userService = new UserService(new MemoryAuthDAO(), new MemoryUserDAO());
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);

@@ -31,7 +31,7 @@ public class ClearServiceTests {
 
     gameService = new GameService(memoryAuthDAO, memoryGameDAO, memoryUserDAO);
     clearService = new ClearService(memoryAuthDAO, memoryGameDAO, memoryUserDAO);
-    userService = new UserService(memoryAuthDAO, memoryGameDAO, memoryUserDAO);
+    userService = new UserService(memoryAuthDAO, memoryUserDAO);
   }
 
   @Test

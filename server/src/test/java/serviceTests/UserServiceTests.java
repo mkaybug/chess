@@ -6,7 +6,6 @@ import dataAccess.MemoryUserDAO;
 import dataAccess.DataAccessException;
 
 import model.AuthData;
-import model.GameData;
 import model.UserData;
 
 import service.ClearService;
@@ -32,7 +31,7 @@ public class UserServiceTests {
 
     gameService = new GameService(memoryAuthDAO, memoryGameDAO, memoryUserDAO);
     clearService = new ClearService(memoryAuthDAO, memoryGameDAO, memoryUserDAO);
-    userService = new UserService(memoryAuthDAO, memoryGameDAO, memoryUserDAO);
+    userService = new UserService(memoryAuthDAO, memoryUserDAO);
   }
 
   @Test
@@ -94,28 +93,5 @@ public class UserServiceTests {
     var users = clearService.listUsers();
     assertEquals(1, users.size());
     assertTrue(users.contains(user));
-  }
-
-  @Test
-  void listUsers() throws DataAccessException {
-    List<UserData> expected = new ArrayList<>();
-    expected.add(userService.addUser(new UserData("mblack", "school_password", "mblack15@byu.edu")));
-    expected.add(userService.addUser(new UserData("this_username", "this_password", "thisEmail@byu.edu")));
-    expected.add(userService.addUser(new UserData("lastUser", "lastPassword", "CS240@byu.edu")));
-
-    var actual = clearService.listUsers();
-    assertIterableEquals(expected, actual);
-  }
-
-  @Test
-  void deleteUser() throws DataAccessException {
-    List<UserData> expected = new ArrayList<>();
-    var user = userService.addUser(new UserData("mblack", "school_password", "mblack15@byu.edu"));
-    expected.add(userService.addUser(new UserData("this_username", "this_password", "thisEmail@byu.edu")));
-    expected.add(userService.addUser(new UserData("lastUser", "lastPassword", "CS240@byu.edu")));
-
-    userService.deleteUser(user.username());
-    var actual = clearService.listUsers();
-    assertIterableEquals(expected, actual);
   }
 }
