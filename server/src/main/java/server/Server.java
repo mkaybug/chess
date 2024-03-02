@@ -2,16 +2,19 @@ package server;
 
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
+import model.*;
+
 import dataAccess.MemoryAuthDAO;
 import dataAccess.MemoryGameDAO;
 import dataAccess.MemoryUserDAO;
-import model.AuthData;
-import model.LoginRequest;
-import model.RegisterRequest;
+
 import service.ClearService;
 import service.GameService;
 import service.UserService;
 import spark.*;
+
+import java.util.Collection;
+import java.util.Objects;
 
 public class Server {
     MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
@@ -27,7 +30,7 @@ public class Server {
 
         Spark.staticFiles.location("web");
 
-
+        // Register endpoints
         Spark.delete("/db", this::clearDatabase);
         Spark.post("/user", this::register);
         Spark.post("/session", this::login);
@@ -35,11 +38,6 @@ public class Server {
         Spark.get("/game", this::listGames);
         Spark.post("/game", this::createGame);
         Spark.put("/game", this::joinGame);
-//        Spark.exception(ResponseException.class, this::exceptionHandler);
-
-//        Spark.delete("/db", (request, response) -> new DatabaseHandler(authService, gameService, userService).clear(request, response));
-
-        // Register your endpoints and handle exceptions here.
 
         Spark.awaitInitialization();
         return Spark.port();
@@ -50,56 +48,128 @@ public class Server {
         Spark.awaitStop();
     }
 
-//    private void exceptionHandler(ResponseException ex, Request req, Response res) {
-//        res.status(ex.StatusCode());
-//    }
-
     private Object clearDatabase(Request req, Response res) throws DataAccessException {
         clearService.clearDatabase();
-        res.status(204);
+        res.status(200);
         return "";
     }
 
     private Object register(Request req, Response res) throws DataAccessException {
-        RegisterRequest user = new Gson().fromJson(req.body(), RegisterRequest.class);
-        AuthData auth = userService.register(user);
-//        webSocketHandler.makeNoise(pet.name(), pet.sound());
-        return new Gson().toJson(auth);
+        try {
+            RegisterRequest user = new Gson().fromJson(req.body(), RegisterRequest.class);
+            AuthData auth = userService.register(user);
+            return new Gson().toJson(auth);
+        }
+        catch (DataAccessException e) {
+            if (Objects.equals(e.getMessage(), "Error: bad request")) {
+                res.status(400);
+            }
+            else {
+                res.status(403);
+            }
+          return new Gson().toJson(new ExceptionMessageResponse(e.getMessage()));
+        }
+        catch (Exception e) {
+            res.status(500);
+            return new Gson().toJson(new ExceptionMessageResponse(e.getMessage()));
+        }
     }
 
     private Object login(Request req, Response res) throws DataAccessException {
-        LoginRequest user = new Gson().fromJson(req.body(), LoginRequest.class);
-        AuthData auth = userService.login(user);
-//        webSocketHandler.makeNoise(pet.name(), pet.sound());
-        return new Gson().toJson(auth);
+        try {
+            LoginRequest user = new Gson().fromJson(req.body(), LoginRequest.class);
+            AuthData auth = userService.login(user);
+            return new Gson().toJson(auth);
+        }
+        catch (DataAccessException e) {
+            res.status(401);
+            return new Gson().toJson(new ExceptionMessageResponse(e.getMessage()));
+        }
+        catch (Exception e) {
+            res.status(500);
+            return new Gson().toJson(new ExceptionMessageResponse(e.getMessage()));
+        }
     }
 
     private Object logout(Request req, Response res) throws DataAccessException {
-        LoginRequest user = new Gson().fromJson(req.body(), LoginRequest.class);
-
-        // FIXME where I left off: how do I get the user from the header information?
-//        userService.logout();
-        res.status(204);
-        return "";
+        try {
+            String authToken = req.headers("authorization");
+            userService.logout(authToken);
+            res.status(200);
+            return "";
+        }
+        catch (DataAccessException e) {
+            res.status(401);
+            return new Gson().toJson(new ExceptionMessageResponse(e.getMessage()));
+        }
+        catch (Exception e) {
+            res.status(500);
+            return new Gson().toJson(new ExceptionMessageResponse(e.getMessage()));
+        }
     }
 
     private Object listGames(Request req, Response res) throws DataAccessException {
-//        res.type("application/json");
-//        var list = service.listPets().toArray();
-//        return new Gson().toJson(Map.of("pet", list));
-      return null;
+        try {
+            String authToken = req.headers("authorization");
+            Collection<GameData> games = gameService.listGames(authToken);
+            return new Gson().toJson(new GamesResponse(games));
+        }
+        catch (DataAccessException e) {
+            res.status(401);
+            return new Gson().toJson(new ExceptionMessageResponse(e.getMessage()));
+        }
+        catch (Exception e) {
+            res.status(500);
+            return new Gson().toJson(new ExceptionMessageResponse(e.getMessage()));
+        }
     }
 
     private Object createGame(Request req, Response res) throws DataAccessException {
-//        LoginRequest user = new Gson().fromJson(req.body(), LoginRequest.class);
-//        AuthData auth = userService.login(user);
-////        webSocketHandler.makeNoise(pet.name(), pet.sound());
-//        return new Gson().toJson(auth);
-      return null;
+        try {
+            String authToken = req.headers("authorization");
+            CreateGameRequest gameName = new Gson().fromJson(req.body(), CreateGameRequest.class);
+            GameData game = gameService.createGame(authToken, gameName);
+            return new Gson().toJson(game);
+        }
+        catch (DataAccessException e) {
+            if (Objects.equals(e.getMessage(), "Error: bad request")) {
+                res.status(400);
+            }
+            else {
+                res.status(401);
+            }
+            return new Gson().toJson(new ExceptionMessageResponse(e.getMessage()));
+        }
+        catch (Exception e) {
+            res.status(500);
+            return new Gson().toJson(new ExceptionMessageResponse(e.getMessage()));
+        }
     }
 
 
     private Object joinGame(Request req, Response res) throws DataAccessException {
-        return null;
+        try {
+            String authToken = req.headers("authorization");
+            JoinGameRequest gameName = new Gson().fromJson(req.body(), JoinGameRequest.class);
+            gameService.joinGame(authToken, gameName);
+            res.status(200);
+            return "{}";
+        }
+        catch (DataAccessException e) {
+            if (Objects.equals(e.getMessage(), "Error: bad request")) {
+                res.status(400);
+            }
+            else if (Objects.equals(e.getMessage(), "Error: unauthorized")) {
+                res.status(401);
+            }
+            else {
+                res.status(403);
+            }
+            return new Gson().toJson(new ExceptionMessageResponse(e.getMessage()));
+        }
+        catch (Exception e) {
+            res.status(500);
+            return new Gson().toJson(new ExceptionMessageResponse(e.getMessage()));
+        }
     }
 }

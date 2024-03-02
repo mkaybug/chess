@@ -1,10 +1,7 @@
 package service;
 
 import dataAccess.*;
-import model.AuthData;
-import model.LoginRequest;
-import model.RegisterRequest;
-import model.UserData;
+import model.*;
 
 import java.util.Objects;
 

@@ -61,6 +61,7 @@ public class GameService {
     while (getGame(idNum) != null) {
       idNum += 1;
     }
+    // FIXME Change to only return idNum
     return addGame(new GameData(idNum, null, null, request.gameName(), new ChessGame()));
   }
 
@@ -84,13 +85,13 @@ public class GameService {
       if (game.whiteUsername() != null) {
         throw new DataAccessException("Error: already taken");
       }
-      putGame(new GameData (game.gameID(), getAuth(authToken).username(), null, game.gameName(), game.game()));
+      putGame(new GameData (game.gameID(), getAuth(authToken).username(), game.blackUsername(), game.gameName(), game.game()));
     }
     if (Objects.equals(request.playerColor(), "BLACK")) {
       if (game.blackUsername() != null) {
         throw new DataAccessException("Error: already taken");
       }
-      putGame(new GameData (game.gameID(), null, getAuth(authToken).username(), game.gameName(), game.game()));
+      putGame(new GameData (game.gameID(), game.whiteUsername(), getAuth(authToken).username(), game.gameName(), game.game()));
     }
     // Observer -> empty string
     // Make sure the game exists (since we've already done that, we do nothing
