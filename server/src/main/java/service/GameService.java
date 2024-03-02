@@ -7,9 +7,9 @@ import dataAccess.GameDAO;
 import dataAccess.AuthDAO;
 import dataAccess.UserDAO;
 import model.AuthData;
-import model.CreateGameRequest;
+import model.request.CreateGameRequest;
 import model.GameData;
-import model.JoinGameRequest;
+import model.request.JoinGameRequest;
 
 import java.util.Collection;
 import java.util.Objects;

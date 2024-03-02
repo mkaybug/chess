@@ -74,17 +74,8 @@ public class ChessPiece {
         return new ArrayList<>();
     }
 
-    /**
-     * Calculates all possible bishop moves
-     *
-     * @param board The chessboard
-     * @param startPosition The starting position of the bishop to be moved
-     * @return ArrayList of valid moves
-     */
-    public ArrayList<ChessMove> calculateBishopMoves(ChessBoard board, ChessPosition startPosition) {
+    public ArrayList<ChessMove> calculateMoves(ChessBoard board, ChessPosition startPosition, int[] rowAdvancements, int[] columnAdvancements) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
-        int[] rowAdvancements = {1, 1, -1, -1};
-        int[] columnAdvancements = {1, -1, -1, 1};
 
         for (int i = 0; i < 4; i++) {
             ChessPosition currentPosition = startPosition;
@@ -109,6 +100,20 @@ public class ChessPiece {
     }
 
     /**
+     * Calculates all possible bishop moves
+     *
+     * @param board The chessboard
+     * @param startPosition The starting position of the bishop to be moved
+     * @return ArrayList of valid moves
+     */
+    public ArrayList<ChessMove> calculateBishopMoves(ChessBoard board, ChessPosition startPosition) {
+        int[] rowAdvancements = {1, 1, -1, -1};
+        int[] columnAdvancements = {1, -1, -1, 1};
+
+        return calculateMoves(board, startPosition, rowAdvancements, columnAdvancements);
+    }
+
+    /**
      * Calculates all possible rook moves
      * Near identical functionality to calculateBishopMoves()
      *
@@ -117,30 +122,10 @@ public class ChessPiece {
      * @return ArrayList of valid moves
      */
     public ArrayList<ChessMove> calculateRookMoves(ChessBoard board, ChessPosition startPosition) {
-        ArrayList<ChessMove> possibleMoves = new ArrayList<>();
         int[] rowAdvancements = {0, 0, 1, -1};
         int[] columnAdvancements = {1, -1, 0, 0};
 
-        for (int i = 0; i < 4; i++) {
-            ChessPosition currentPosition = startPosition;
-            for (int j = 0; j < 6; j++) {
-                ChessPosition endPosition = new ChessPosition(currentPosition.getRow() + rowAdvancements[i], currentPosition.getColumn() + columnAdvancements[i]);
-                if(endPosition.getColumn() < 9 && endPosition.getColumn() > 0 && endPosition.getRow() < 9 && endPosition.getRow() > 0) {
-                    if (board.getPiece(endPosition) == null || board.getPiece(endPosition).pieceColor != board.getPiece(startPosition).pieceColor) {
-                        possibleMoves.add(new ChessMove(startPosition, endPosition, null));
-                    }
-                }
-                else {
-                    break;
-                }
-                if (board.getPiece(endPosition) != null) {
-                    break;
-                }
-                currentPosition = endPosition;
-            }
-        }
-
-        return possibleMoves;
+        return calculateMoves(board, startPosition, rowAdvancements, columnAdvancements);
     }
 
     /**

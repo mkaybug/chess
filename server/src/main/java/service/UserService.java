@@ -2,6 +2,8 @@ package service;
 
 import dataAccess.*;
 import model.*;
+import model.request.LoginRequest;
+import model.request.RegisterRequest;
 
 import java.util.Objects;
 

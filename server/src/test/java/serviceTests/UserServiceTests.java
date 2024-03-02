@@ -6,8 +6,8 @@ import dataAccess.MemoryUserDAO;
 import dataAccess.DataAccessException;
 
 import model.AuthData;
-import model.LoginRequest;
-import model.RegisterRequest;
+import model.request.LoginRequest;
+import model.request.RegisterRequest;
 import model.UserData;
 
 import service.ClearService;

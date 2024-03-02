@@ -1,4 +1,6 @@
-package model;
+package model.response;
+
+import model.GameData;
 
 import java.util.Collection;
 

@@ -9,6 +9,8 @@ import dataAccess.DataAccessException;
 
 import model.*;
 
+import model.request.CreateGameRequest;
+import model.request.JoinGameRequest;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
