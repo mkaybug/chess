@@ -12,8 +12,6 @@ public interface UserDAO {
   UserData getUsername(String username) throws DataAccessException;
   // Select all users
   Collection<UserData> listUsers() throws DataAccessException;
-  // Delete user
-  void deleteUser(String username) throws DataAccessException;
   // Delete all users
   void deleteAllUsers() throws DataAccessException;
 }
