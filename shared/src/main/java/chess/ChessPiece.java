@@ -73,6 +73,10 @@ public class ChessPiece {
         return new ArrayList<>();
     }
 
+    public boolean inBoundaries(ChessPosition endPosition) {
+        return endPosition.getColumn() < 9 && endPosition.getColumn() > 0 && endPosition.getRow() < 9 && endPosition.getRow() > 0;
+    }
+
     public ArrayList<ChessMove> moveBishopOrRook(ChessBoard board, ChessPosition startPosition, int[] rowAdvancements, int[] columnAdvancements) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
 
@@ -80,7 +84,7 @@ public class ChessPiece {
             ChessPosition currentPosition = startPosition;
             for (int j = 0; j < 6; j++) {
                 ChessPosition endPosition = new ChessPosition(currentPosition.getRow() + rowAdvancements[i], currentPosition.getColumn() + columnAdvancements[i]);
-                if(endPosition.getColumn() < 9 && endPosition.getColumn() > 0 && endPosition.getRow() < 9 && endPosition.getRow() > 0) {
+                if(inBoundaries(endPosition)) {
                     if (board.getPiece(endPosition) == null || board.getPiece(endPosition).pieceColor != board.getPiece(startPosition).pieceColor) {
                         possibleMoves.add(new ChessMove(startPosition, endPosition, null));
                     }
@@ -177,7 +181,7 @@ public class ChessPiece {
     private ArrayList<ChessMove> moveKingOrKnight(ChessBoard board, ChessPosition startPosition, ArrayList<ChessMove> possibleMoves, int[] rowAdvancements, int[] columnAdvancements) {
         for (int i = 0; i < 8; i++) {
             ChessPosition endPosition = new ChessPosition(startPosition.getRow() + rowAdvancements[i], startPosition.getColumn() + columnAdvancements[i]);
-            if(endPosition.getColumn() < 9 && endPosition.getColumn() > 0 && endPosition.getRow() < 9 && endPosition.getRow() > 0) {
+            if(inBoundaries(endPosition)) {
                 if (board.getPiece(endPosition) == null || board.getPiece(endPosition).pieceColor != board.getPiece(startPosition).pieceColor) {
                     possibleMoves.add(new ChessMove(startPosition, endPosition, null));
                 }

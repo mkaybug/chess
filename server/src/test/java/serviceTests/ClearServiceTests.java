@@ -35,6 +35,7 @@ public class ClearServiceTests {
   }
 
   @Test
+  @DisplayName("Clear Database")
   void clearDatabase() throws DataAccessException {
     gameService.addGame(new GameData(1, "white1", "black1", "game1", new ChessGame()));
     gameService.addGame(new GameData(2, "white2", "black2", "game2", new ChessGame()));
