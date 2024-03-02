@@ -1,6 +1,5 @@
 package chess;
 import java.util.ArrayList; // Added this line to return an empty array, you can remove.
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -74,7 +73,7 @@ public class ChessPiece {
         return new ArrayList<>();
     }
 
-    public ArrayList<ChessMove> calculateMoves(ChessBoard board, ChessPosition startPosition, int[] rowAdvancements, int[] columnAdvancements) {
+    public ArrayList<ChessMove> moveBishopOrRook(ChessBoard board, ChessPosition startPosition, int[] rowAdvancements, int[] columnAdvancements) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
 
         for (int i = 0; i < 4; i++) {
@@ -110,7 +109,7 @@ public class ChessPiece {
         int[] rowAdvancements = {1, 1, -1, -1};
         int[] columnAdvancements = {1, -1, -1, 1};
 
-        return calculateMoves(board, startPosition, rowAdvancements, columnAdvancements);
+        return moveBishopOrRook(board, startPosition, rowAdvancements, columnAdvancements);
     }
 
     /**
@@ -125,7 +124,7 @@ public class ChessPiece {
         int[] rowAdvancements = {0, 0, 1, -1};
         int[] columnAdvancements = {1, -1, 0, 0};
 
-        return calculateMoves(board, startPosition, rowAdvancements, columnAdvancements);
+        return moveBishopOrRook(board, startPosition, rowAdvancements, columnAdvancements);
     }
 
     /**
@@ -156,16 +155,7 @@ public class ChessPiece {
         int[] rowAdvancements = {1, 0, -1, -1, -1, 0, 1, 1};
         int[] columnAdvancements = {1, 1, 1, 0, -1, -1, -1, 0};
 
-        for (int i = 0; i < 8; i++) {
-            ChessPosition endPosition = new ChessPosition(startPosition.getRow() + rowAdvancements[i], startPosition.getColumn() + columnAdvancements[i]);
-            if(endPosition.getColumn() < 9 && endPosition.getColumn() > 0 && endPosition.getRow() < 9 && endPosition.getRow() > 0) {
-                if (board.getPiece(endPosition) == null || board.getPiece(endPosition).pieceColor != board.getPiece(startPosition).pieceColor) {
-                    possibleMoves.add(new ChessMove(startPosition, endPosition, null));
-                }
-            }
-        }
-
-        return possibleMoves;
+        return moveKingOrKnight(board, startPosition, possibleMoves, rowAdvancements, columnAdvancements);
     }
 
     /**
@@ -181,6 +171,10 @@ public class ChessPiece {
         int[] rowAdvancements = {2, 1, -1, -2, -2, -1, 1, 2};
         int[] columnAdvancements = {1, 2, 2, 1, -1, -2, -2, -1};
 
+        return moveKingOrKnight(board, startPosition, possibleMoves, rowAdvancements, columnAdvancements);
+    }
+
+    private ArrayList<ChessMove> moveKingOrKnight(ChessBoard board, ChessPosition startPosition, ArrayList<ChessMove> possibleMoves, int[] rowAdvancements, int[] columnAdvancements) {
         for (int i = 0; i < 8; i++) {
             ChessPosition endPosition = new ChessPosition(startPosition.getRow() + rowAdvancements[i], startPosition.getColumn() + columnAdvancements[i]);
             if(endPosition.getColumn() < 9 && endPosition.getColumn() > 0 && endPosition.getRow() < 9 && endPosition.getRow() > 0) {

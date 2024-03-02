@@ -194,25 +194,28 @@ public class ChessGame {
         // Check all moves for the current team.
         // If one of the pieces has a valid move, then return false.
         if (isInCheck(teamColor)) {
-            for (int i = 1; i < 9; i++) {
-                for (int j = 1; j < 9; j++) {
-                    ChessPosition currentPosition = new ChessPosition(i, j);
-                    ChessPiece piece = chessBoard.getPiece(currentPosition);
-
-                    if(piece != null && piece.getTeamColor() == teamColor) {
-                        Collection<ChessMove> validMoves = validMoves(currentPosition);
-                        if(!validMoves.isEmpty()) {
-                            return false;
-                        }
-                    }
-                }
-            }
-
-            return true;
+          return !checkSafePieceMoves(teamColor);
         }
         else {
             return false;
         }
+    }
+
+    private boolean checkSafePieceMoves(TeamColor teamColor) {
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition currentPosition = new ChessPosition(i, j);
+                ChessPiece piece = chessBoard.getPiece(currentPosition);
+
+                if(piece != null && piece.getTeamColor() == teamColor) {
+                    Collection<ChessMove> validMoves = validMoves(currentPosition);
+                    if(!validMoves.isEmpty()) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -225,24 +228,11 @@ public class ChessGame {
     public boolean isInStalemate(TeamColor teamColor) {
         // If teamColor is not in check and has no legal move, stalemate = true
         if (!isInCheck(teamColor)) {
-            for (int i = 1; i < 9; i++) {
-                for (int j = 1; j < 9; j++) {
-                    ChessPosition currentPosition = new ChessPosition(i, j);
-                    ChessPiece piece = chessBoard.getPiece(currentPosition);
-
-                    if(piece != null && piece.getTeamColor() == teamColor) {
-                        Collection<ChessMove> validMoves = validMoves(currentPosition);
-                        if(!validMoves.isEmpty()) {
-                            return false;
-                        }
-                    }
-                }
-            }
+          return !checkSafePieceMoves(teamColor);
         }
         else {
             return false;
         }
-        return true;
     }
 
     /**
