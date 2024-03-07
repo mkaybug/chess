@@ -1,8 +1,8 @@
 package serviceTests;
 
-import dataAccess.MemoryAuthDAO;
-import dataAccess.MemoryGameDAO;
-import dataAccess.MemoryUserDAO;
+import dataAccess.MemoryDAOs.MemoryAuthDAO;
+import dataAccess.MemoryDAOs.MemoryGameDAO;
+import dataAccess.MemoryDAOs.MemoryUserDAO;
 import dataAccess.DataAccessException;
 
 import model.AuthData;

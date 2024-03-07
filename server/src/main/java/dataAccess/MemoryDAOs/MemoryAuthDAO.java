@@ -1,6 +1,7 @@
 // Data Access for auth table using in memory storage (RAM)
-package dataAccess;
+package dataAccess.MemoryDAOs;
 
+import dataAccess.AuthDAO;
 import model.AuthData;
 
 import java.util.Collection;

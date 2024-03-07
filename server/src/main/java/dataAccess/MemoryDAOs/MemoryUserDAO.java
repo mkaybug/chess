@@ -1,6 +1,7 @@
 // Data Access for user table using in memory storage (RAM)
-package dataAccess;
+package dataAccess.MemoryDAOs;
 
+import dataAccess.UserDAO;
 import model.UserData;
 
 import java.util.Collection;

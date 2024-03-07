@@ -4,9 +4,9 @@ import com.google.gson.Gson;
 import dataAccess.DataAccessException;
 import model.*;
 
-import dataAccess.MemoryAuthDAO;
-import dataAccess.MemoryGameDAO;
-import dataAccess.MemoryUserDAO;
+import dataAccess.MemoryDAOs.MemoryAuthDAO;
+import dataAccess.MemoryDAOs.MemoryGameDAO;
+import dataAccess.MemoryDAOs.MemoryUserDAO;
 
 import model.request.CreateGameRequest;
 import model.request.JoinGameRequest;
