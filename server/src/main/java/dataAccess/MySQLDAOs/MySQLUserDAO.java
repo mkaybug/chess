@@ -22,8 +22,6 @@ public class MySQLUserDAO implements UserDAO {
     return new UserData(user.username(), user.password(), user.email());
   }
 
-  // FIXME Where I left off: I think that the table is not getting created, or not instantiated.
-  // FIXME Perhaps press pause here and test listUsers to see if we have anything.
   public UserData getUsername(String username) throws DataAccessException {
     try (var conn = DatabaseManager.getConnection()) {
       var statement = "SELECT username, password, email FROM userData WHERE username=?";

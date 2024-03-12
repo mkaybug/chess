@@ -2,23 +2,17 @@ package dataAccessTests;
 
 import dataAccess.DataAccessException;
 import dataAccess.MySQLDAOs.MySQLUserDAO;
-import model.AuthData;
 import model.UserData;
-import model.request.LoginRequest;
-import model.request.RegisterRequest;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import service.ClearService;
-import service.GameService;
-import service.UserService;
 
+import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MySQLUserTests {
   MySQLUserDAO mySQLUserDAO = null;
@@ -38,7 +32,11 @@ public class MySQLUserTests {
   @Test
   @DisplayName("Add User Fail")
   void addUserFail() throws DataAccessException {
-    assertThrows(DataAccessException.class, () -> mySQLUserDAO.getUsername("this_username"));
+    UserData user1 = new UserData ("username", "password", "email");
+    UserData user2 = new UserData ("username", "password", "email");
+
+    mySQLUserDAO.addUser(user1);
+    assertThrows(DataAccessException.class, () -> mySQLUserDAO.addUser(user2));
   }
 
   @Test
@@ -60,7 +58,7 @@ public class MySQLUserTests {
   @Test
   @DisplayName("Get User Fail")
   void getUserFail() throws DataAccessException {
-    assertThrows(DataAccessException.class, () -> mySQLUserDAO.getUsername("username"));
+    assertNull(mySQLUserDAO.getUsername("username"));
   }
 
   @Test
@@ -73,23 +71,18 @@ public class MySQLUserTests {
   }
 
   @Test
-  @DisplayName("List Users")
-  void listUsers() throws DataAccessException {
+  @DisplayName("List Users Success")
+  void listUsersSuccess() throws DataAccessException {
     ArrayList<UserData> expected = new ArrayList<>();
 
-    UserData user1 = new UserData ("username", "password", "email");
-    UserData user2 = new UserData ("username", "password", "email");
-    UserData user3 = new UserData ("username", "password", "email");
+    UserData user1 = new UserData ("username1", "password1", "email1");
+    UserData user2 = new UserData ("username2", "password2", "email2");
+    UserData user3 = new UserData ("username3", "password3", "email3");
     expected.add(mySQLUserDAO.addUser(user1));
     expected.add(mySQLUserDAO.addUser(user2));
     expected.add(mySQLUserDAO.addUser(user3));
 
     assertIterableEquals(expected, mySQLUserDAO.listUsers());
-  }
-
-  @Test
-  @DisplayName("Read User")
-  void readUser() throws DataAccessException {
   }
 
   @Test
@@ -103,7 +96,7 @@ public class MySQLUserTests {
     mySQLUserDAO.addUser(user2);
     mySQLUserDAO.addUser(user3);
 
-//    mySQLUserDAO.deleteAllUsers();
+    mySQLUserDAO.deleteAllUsers();
     Collection<UserData> actual = mySQLUserDAO.listUsers();
 
     assertEquals(0, actual.size());
