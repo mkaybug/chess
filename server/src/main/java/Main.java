@@ -1,6 +1,7 @@
 import chess.*;
 import dataAccess.DataAccessException;
 import dataAccess.DatabaseManager;
+import dataAccess.MySQLDAOs.MySQLUserDAO;
 import server.Server;
 
 public class Main {
@@ -9,11 +10,6 @@ public class Main {
         System.out.println("♕ 240 Chess Server: " + piece);
         new Server().run(8080);
 
-        try {
-            DatabaseManager.createDatabase();
-            DatabaseManager.getConnection();
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
+        MySQLUserDAO userDataAccess = new MySQLUserDAO();
     }
 }

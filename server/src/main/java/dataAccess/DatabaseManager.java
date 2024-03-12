@@ -44,7 +44,7 @@ public class DatabaseManager {
       try (var preparedStatement = conn.prepareStatement(statement)) {
         preparedStatement.executeUpdate();
       }
-      createTables(conn);
+//      createTables(conn);
     } catch (SQLException e) {
       throw new DataAccessException(e.getMessage());
     }
@@ -72,37 +72,37 @@ public class DatabaseManager {
     }
   }
 
-  public static void createTables(Connection connection) throws SQLException {
-    String CREATE_AUTH_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS authData (" +
-            "authToken VARCHAR(50) PRIMARY KEY," +
-            "username VARCHAR(50) NOT NULL" +
-            ")";
-
-    String CREATE_GAME_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS gameData (" +
-            "gameID INT PRIMARY KEY," +
-            "whiteUsername VARCHAR(50)," +
-            "blackUsername VARCHAR(50)," +
-            "gameName VARCHAR(50) NOT NULL," +
-            "chessGame BLOB NOT NULL" +
-            ")";
-
-    String CREATE_USER_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS userData (" +
-            "username VARCHAR(50) PRIMARY KEY," +
-            "password VARCHAR(50) NOT NULL," +
-            "email VARCHAR(50) NOT NULL" +
-            ")";
-
-    try (PreparedStatement preparedStatement = connection.prepareStatement(CREATE_AUTH_TABLE_QUERY)) {
-      preparedStatement.executeUpdate();
-      System.out.println("Table 'authData' created successfully.");
-    }
-    try (PreparedStatement preparedStatement = connection.prepareStatement(CREATE_GAME_TABLE_QUERY)) {
-      preparedStatement.executeUpdate();
-      System.out.println("Table 'gameData' created successfully.");
-    }
-    try (PreparedStatement preparedStatement = connection.prepareStatement(CREATE_USER_TABLE_QUERY)) {
-      preparedStatement.executeUpdate();
-      System.out.println("Table 'userData' created successfully.");
-    }
-  }
+//  public static void createTables(Connection connection) throws SQLException {
+//    String CREATE_AUTH_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS authData (" +
+//            "authToken VARCHAR(50) PRIMARY KEY," +
+//            "username VARCHAR(50) NOT NULL" +
+//            ")";
+//
+//    String CREATE_GAME_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS gameData (" +
+//            "gameID INT PRIMARY KEY," +
+//            "whiteUsername VARCHAR(50)," +
+//            "blackUsername VARCHAR(50)," +
+//            "gameName VARCHAR(50) NOT NULL," +
+//            "chessGame BLOB NOT NULL" +
+//            ")";
+//
+//    String CREATE_USER_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS userData (" +
+//            "username VARCHAR(50) PRIMARY KEY," +
+//            "password VARCHAR(50) NOT NULL," +
+//            "email VARCHAR(50) NOT NULL" +
+//            ")";
+//
+//    try (PreparedStatement preparedStatement = connection.prepareStatement(CREATE_AUTH_TABLE_QUERY)) {
+//      preparedStatement.executeUpdate();
+//      System.out.println("Table 'authData' created successfully.");
+//    }
+//    try (PreparedStatement preparedStatement = connection.prepareStatement(CREATE_GAME_TABLE_QUERY)) {
+//      preparedStatement.executeUpdate();
+//      System.out.println("Table 'gameData' created successfully.");
+//    }
+//    try (PreparedStatement preparedStatement = connection.prepareStatement(CREATE_USER_TABLE_QUERY)) {
+//      preparedStatement.executeUpdate();
+//      System.out.println("Table 'userData' created successfully.");
+//    }
+//  }
 }
