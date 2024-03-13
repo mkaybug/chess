@@ -22,7 +22,6 @@ public class MySQLUserTests {
     try {
       mySQLUserDAO = new MySQLUserDAO();
       mySQLUserDAO.deleteAllUsers();
-      mySQLUserDAO.MySqlUserDAO();
     }
     catch (DataAccessException e) {
       throw new DataAccessException(e.getMessage());

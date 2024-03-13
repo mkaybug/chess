@@ -13,7 +13,7 @@ import java.sql.*;
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 public class MySQLUserDAO implements UserDAO {
-  public void MySqlUserDAO() throws DataAccessException {
+  public MySQLUserDAO() throws DataAccessException {
     configureDatabase();
   }
   public UserData addUser(UserData user) throws DataAccessException {
