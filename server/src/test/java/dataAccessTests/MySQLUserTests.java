@@ -7,8 +7,8 @@ import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -49,9 +49,21 @@ public class MySQLUserTests {
     mySQLUserDAO.addUser(user2);
     mySQLUserDAO.addUser(user3);
 
-    assertEquals(user1, mySQLUserDAO.getUsername(user1.username()));
-    assertEquals(user2, mySQLUserDAO.getUsername(user2.username()));
-    assertEquals(user3, mySQLUserDAO.getUsername(user3.username()));
+    String hashedPassword1 = mySQLUserDAO.getUsername(user1.username()).password();
+    String hashedPassword2 = mySQLUserDAO.getUsername(user2.username()).password();
+    String hashedPassword3 = mySQLUserDAO.getUsername(user3.username()).password();
+
+    assertEquals(user1.username(), mySQLUserDAO.getUsername(user1.username()).username());
+    assertEquals(user1.email(), mySQLUserDAO.getUsername(user1.username()).email());
+    assertTrue(new BCryptPasswordEncoder().matches(user1.password(), hashedPassword1));
+
+    assertEquals(user2.username(), mySQLUserDAO.getUsername(user2.username()).username());
+    assertEquals(user2.email(), mySQLUserDAO.getUsername(user2.username()).email());
+    assertTrue(new BCryptPasswordEncoder().matches(user2.password(), hashedPassword2));
+
+    assertEquals(user3.username(), mySQLUserDAO.getUsername(user3.username()).username());
+    assertEquals(user3.email(), mySQLUserDAO.getUsername(user3.username()).email());
+    assertTrue(new BCryptPasswordEncoder().matches(user3.password(), hashedPassword3));
   }
 
   @Test
@@ -66,7 +78,11 @@ public class MySQLUserTests {
     UserData user = new UserData ("Makayla", "this_password", "email@gmail.com");
     mySQLUserDAO.addUser(user);
 
-    assertEquals(user, mySQLUserDAO.getUsername(user.username()));
+    String hashedPassword = mySQLUserDAO.getUsername(user.username()).password();
+
+    assertEquals(user.username(), mySQLUserDAO.getUsername(user.username()).username());
+    assertEquals(user.email(), mySQLUserDAO.getUsername(user.username()).email());
+    assertTrue(new BCryptPasswordEncoder().matches(user.password(), hashedPassword));
   }
 
   @Test

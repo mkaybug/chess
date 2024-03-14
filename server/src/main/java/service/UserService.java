@@ -4,6 +4,7 @@ import dataAccess.*;
 import model.*;
 import model.request.LoginRequest;
 import model.request.RegisterRequest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Objects;
 
@@ -46,7 +47,8 @@ public class UserService {
       if (username == null) {
         throw new DataAccessException("Error: unauthorized");
       }
-      if (Objects.equals(username.password(), request.password())) {
+      // This line was changed to make the mySQL database work, it used to merely compare the request password and the returned password (username)
+      if (new BCryptPasswordEncoder().matches(request.password(), username.password())) {
         // Create auth token, add to database and return it
         AuthData auth = new AuthData(AuthTokenGenerator.generateAuthToken(), request.username());
         authDataAccess.addAuth(auth);

@@ -8,6 +8,10 @@ import dataAccess.MemoryDAOs.MemoryAuthDAO;
 import dataAccess.MemoryDAOs.MemoryGameDAO;
 import dataAccess.MemoryDAOs.MemoryUserDAO;
 
+import dataAccess.MySQLDAOs.MySQLAuthDAO;
+import dataAccess.MySQLDAOs.MySQLGameDAO;
+import dataAccess.MySQLDAOs.MySQLUserDAO;
+
 import model.request.CreateGameRequest;
 import model.request.JoinGameRequest;
 import model.request.LoginRequest;
@@ -19,19 +23,50 @@ import service.GameService;
 import service.UserService;
 import spark.*;
 
+import javax.xml.crypto.Data;
 import java.util.Collection;
 import java.util.Objects;
 
 public class Server {
-    MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
-    MemoryGameDAO memoryGameDAO = new MemoryGameDAO();
-    MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
-    private final GameService gameService = new GameService(memoryAuthDAO, memoryGameDAO, memoryUserDAO);
-    private final UserService userService = new UserService(memoryAuthDAO, memoryUserDAO);
-    private final ClearService clearService = new ClearService(memoryAuthDAO, memoryGameDAO, memoryUserDAO);
+    MySQLAuthDAO mySQLAuthDAO;
+
+    {
+        try {
+            mySQLAuthDAO = new MySQLAuthDAO();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    MySQLGameDAO mySQLGameDAO;
+
+    {
+        try {
+            mySQLGameDAO = new MySQLGameDAO();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    MySQLUserDAO mySQLUserDAO;
+
+    {
+        try {
+            mySQLUserDAO = new MySQLUserDAO();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private final GameService gameService = new GameService(mySQLAuthDAO, mySQLGameDAO, mySQLUserDAO);
+    private final UserService userService = new UserService(mySQLAuthDAO, mySQLUserDAO);
+    private final ClearService clearService = new ClearService(mySQLAuthDAO, mySQLGameDAO, mySQLUserDAO);
+
+  public Server() {
+  }
 
 
-    public int run(int desiredPort) {
+  public int run(int desiredPort) {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
@@ -60,7 +95,7 @@ public class Server {
         return "";
     }
 
-    private Object register(Request req, Response res) throws DataAccessException {
+    private Object register(Request req, Response res) {
         try {
             RegisterRequest user = new Gson().fromJson(req.body(), RegisterRequest.class);
             AuthData auth = userService.register(user);
@@ -81,7 +116,7 @@ public class Server {
         }
     }
 
-    private Object login(Request req, Response res) throws DataAccessException {
+    private Object login(Request req, Response res) {
         try {
             LoginRequest user = new Gson().fromJson(req.body(), LoginRequest.class);
             AuthData auth = userService.login(user);
@@ -97,7 +132,7 @@ public class Server {
         }
     }
 
-    private Object logout(Request req, Response res) throws DataAccessException {
+    private Object logout(Request req, Response res) {
         try {
             String authToken = req.headers("authorization");
             userService.logout(authToken);
@@ -114,7 +149,7 @@ public class Server {
         }
     }
 
-    private Object listGames(Request req, Response res) throws DataAccessException {
+    private Object listGames(Request req, Response res) {
         try {
             String authToken = req.headers("authorization");
             Collection<GameData> games = gameService.listGames(authToken);
@@ -130,7 +165,7 @@ public class Server {
         }
     }
 
-    private Object createGame(Request req, Response res) throws DataAccessException {
+    private Object createGame(Request req, Response res) {
         try {
             String authToken = req.headers("authorization");
             CreateGameRequest gameName = new Gson().fromJson(req.body(), CreateGameRequest.class);
@@ -153,7 +188,7 @@ public class Server {
     }
 
 
-    private Object joinGame(Request req, Response res) throws DataAccessException {
+    private Object joinGame(Request req, Response res) {
         try {
             String authToken = req.headers("authorization");
             JoinGameRequest gameName = new Gson().fromJson(req.body(), JoinGameRequest.class);

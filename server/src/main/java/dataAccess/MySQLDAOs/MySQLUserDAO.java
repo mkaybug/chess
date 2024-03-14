@@ -1,25 +1,27 @@
 package dataAccess.MySQLDAOs;
 
-import com.google.gson.Gson;
 import dataAccess.DataAccessException;
 import dataAccess.DatabaseManager;
 import dataAccess.UserDAO;
 import model.UserData;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.sql.*;
 
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
-
 public class MySQLUserDAO implements UserDAO {
   public MySQLUserDAO() throws DataAccessException {
     configureDatabase();
   }
+
   public UserData addUser(UserData user) throws DataAccessException {
+    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    String hashedPassword = encoder.encode(user.password());
+
     var statement = "INSERT INTO userData (username, password, email) VALUES (?, ?, ?)";
-    executeUpdate(statement, user.username(), user.password(), user.email());
-    return new UserData(user.username(), user.password(), user.email());
+    executeUpdate(statement, user.username(), hashedPassword, user.email());
+    return new UserData(user.username(), hashedPassword, user.email());
   }
 
   public UserData getUsername(String username) throws DataAccessException {
@@ -78,6 +80,7 @@ public class MySQLUserDAO implements UserDAO {
       try (var ps = conn.prepareStatement(statement)) {
         for (var i = 0; i < params.length; i++) {
           ps.setString(i + 1, params[i]);
+          System.out.println(params[i]);
         }
         ps.executeUpdate();
       }
@@ -98,7 +101,7 @@ public class MySQLUserDAO implements UserDAO {
   public static void createTable(Connection connection) throws SQLException {
     String CREATE_USER_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS userData (" +
             "username VARCHAR(50) PRIMARY KEY," +
-            "password VARCHAR(50) NOT NULL," +
+            "password VARCHAR(60) NOT NULL," +
             "email VARCHAR(50) NOT NULL" + ")";
 
     try (PreparedStatement preparedStatement = connection.prepareStatement(CREATE_USER_TABLE_QUERY)) {
