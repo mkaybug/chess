@@ -7,11 +7,8 @@ import dataAccess.DatabaseManager;
 import dataAccess.GameDAO;
 import model.GameData;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -105,7 +102,9 @@ public class MySQLGameDAO implements GameDAO {
     try (Connection conn = DatabaseManager.getConnection()) {
       try (PreparedStatement ps = conn.prepareStatement(statement)) {
         for (int i = 0; i < params.length; i++) {
-          if (params[i] instanceof String) {
+          if (params[i] == null) {
+            ps.setNull(i + 1, Types.NULL);
+          } else if (params[i] instanceof String) {
             ps.setString(i + 1, (String) params[i]);
           } else if (params[i] instanceof Integer) {
             ps.setInt(i + 1, (Integer) params[i]);
