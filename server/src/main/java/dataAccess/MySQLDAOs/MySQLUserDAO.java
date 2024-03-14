@@ -80,7 +80,6 @@ public class MySQLUserDAO implements UserDAO {
       try (var ps = conn.prepareStatement(statement)) {
         for (var i = 0; i < params.length; i++) {
           ps.setString(i + 1, params[i]);
-          System.out.println(params[i]);
         }
         ps.executeUpdate();
       }
@@ -106,7 +105,6 @@ public class MySQLUserDAO implements UserDAO {
 
     try (PreparedStatement preparedStatement = connection.prepareStatement(CREATE_USER_TABLE_QUERY)) {
       preparedStatement.executeUpdate();
-      System.out.println("Table 'userData' created successfully.");
     }
   }
 }

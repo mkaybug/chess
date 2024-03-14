@@ -106,7 +106,6 @@ public class MySQLAuthDAO implements AuthDAO {
 
     try (PreparedStatement preparedStatement = connection.prepareStatement(CREATE_AUTH_TABLE_QUERY)) {
       preparedStatement.executeUpdate();
-      System.out.println("Table 'authData' created successfully.");
     }
   }
 }

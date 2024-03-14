@@ -143,7 +143,6 @@ public class MySQLGameDAO implements GameDAO {
 
     try (PreparedStatement preparedStatement = connection.prepareStatement(CREATE_GAME_TABLE_QUERY)) {
       preparedStatement.executeUpdate();
-      System.out.println("Table 'gameData' created successfully.");
     }
   }
 }
