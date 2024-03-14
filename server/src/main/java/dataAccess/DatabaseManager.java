@@ -1,8 +1,6 @@
 package dataAccess;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Properties;
 
 public class DatabaseManager {
@@ -26,7 +24,7 @@ public class DatabaseManager {
 
         var host = props.getProperty("db.host");
         var port = Integer.parseInt(props.getProperty("db.port"));
-        connectionUrl = String.format("jdbc:mysql://%s:%d/%s", host, port, databaseName);
+        connectionUrl = String.format("jdbc:mysql://%s:%d", host, port);
       }
     } catch (Exception ex) {
       throw new RuntimeException("unable to process db.properties. " + ex.getMessage());
@@ -43,7 +41,6 @@ public class DatabaseManager {
       try (var preparedStatement = conn.prepareStatement(statement)) {
         preparedStatement.executeUpdate();
       }
-//      createTables(conn);
     } catch (SQLException e) {
       throw new DataAccessException(e.getMessage());
     }
