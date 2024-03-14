@@ -3,6 +3,7 @@ package dataAccess.MemoryDAOs;
 
 import dataAccess.UserDAO;
 import model.UserData;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -13,7 +14,10 @@ public class MemoryUserDAO implements UserDAO {
 
   // Insert user (username, password, and email)
   public UserData addUser(UserData user) {
-    user = new UserData(user.username(), user.password(), user.email());
+    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    String hashedPassword = encoder.encode(user.password());
+
+    user = new UserData(user.username(), hashedPassword, user.email());
 
     userDataMap.put(user.username(), user);
     return user;
