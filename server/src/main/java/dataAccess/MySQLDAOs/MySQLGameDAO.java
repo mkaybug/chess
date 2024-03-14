@@ -132,7 +132,7 @@ public class MySQLGameDAO implements GameDAO {
     }
   }
 
-  public static void createTable(Connection connection) throws SQLException {
+  private static void createTable(Connection connection) throws SQLException {
     String CREATE_GAME_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS gameData (" +
             "gameID INT PRIMARY KEY," +
             "whiteUsername VARCHAR(50)," +

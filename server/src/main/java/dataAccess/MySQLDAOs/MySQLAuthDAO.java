@@ -98,7 +98,7 @@ public class MySQLAuthDAO implements AuthDAO {
     }
   }
 
-  public static void createTable(Connection connection) throws SQLException {
+  private static void createTable(Connection connection) throws SQLException {
     String CREATE_AUTH_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS authData (" +
             "authToken VARCHAR(50) PRIMARY KEY," +
             "username VARCHAR(50) NOT NULL" +

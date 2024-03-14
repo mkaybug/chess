@@ -39,8 +39,8 @@ public class MySQLUserTests {
   }
 
   @Test
-  @DisplayName("Add User Success")
-  void addUserSuccess() throws DataAccessException {
+  @DisplayName("Add First User Success")
+  void addFirstUserSuccess() throws DataAccessException {
     UserData user1 = new UserData ("username1", "password1", "email1@gmail.com");
     UserData user2 = new UserData ("username2", "password2", "email2@gmail.com");
     UserData user3 = new UserData ("username3", "password3", "email3@gmail.com");
@@ -50,16 +50,42 @@ public class MySQLUserTests {
     mySQLUserDAO.addUser(user3);
 
     String hashedPassword1 = mySQLUserDAO.getUsername(user1.username()).password();
-    String hashedPassword2 = mySQLUserDAO.getUsername(user2.username()).password();
-    String hashedPassword3 = mySQLUserDAO.getUsername(user3.username()).password();
 
     assertEquals(user1.username(), mySQLUserDAO.getUsername(user1.username()).username());
     assertEquals(user1.email(), mySQLUserDAO.getUsername(user1.username()).email());
     assertTrue(new BCryptPasswordEncoder().matches(user1.password(), hashedPassword1));
+  }
+
+  @Test
+  @DisplayName("Add Second User Success")
+  void addSecondUserSuccess() throws DataAccessException {
+    UserData user1 = new UserData ("username1", "password1", "email1@gmail.com");
+    UserData user2 = new UserData ("username2", "password2", "email2@gmail.com");
+    UserData user3 = new UserData ("username3", "password3", "email3@gmail.com");
+
+    mySQLUserDAO.addUser(user1);
+    mySQLUserDAO.addUser(user2);
+    mySQLUserDAO.addUser(user3);
+
+    String hashedPassword2 = mySQLUserDAO.getUsername(user2.username()).password();
 
     assertEquals(user2.username(), mySQLUserDAO.getUsername(user2.username()).username());
     assertEquals(user2.email(), mySQLUserDAO.getUsername(user2.username()).email());
     assertTrue(new BCryptPasswordEncoder().matches(user2.password(), hashedPassword2));
+  }
+
+  @Test
+  @DisplayName("Add Third User Success")
+  void addThirdUserSuccess() throws DataAccessException {
+    UserData user1 = new UserData ("username1", "password1", "email1@gmail.com");
+    UserData user2 = new UserData ("username2", "password2", "email2@gmail.com");
+    UserData user3 = new UserData ("username3", "password3", "email3@gmail.com");
+
+    mySQLUserDAO.addUser(user1);
+    mySQLUserDAO.addUser(user2);
+    mySQLUserDAO.addUser(user3);
+
+    String hashedPassword3 = mySQLUserDAO.getUsername(user3.username()).password();
 
     assertEquals(user3.username(), mySQLUserDAO.getUsername(user3.username()).username());
     assertEquals(user3.email(), mySQLUserDAO.getUsername(user3.username()).email());
@@ -98,6 +124,14 @@ public class MySQLUserTests {
     expected.add(mySQLUserDAO.addUser(user3));
 
     assertIterableEquals(expected, mySQLUserDAO.listUsers());
+  }
+
+  @Test
+  @DisplayName("List Users Fail - No Users Found")
+  void listUsersFailure() throws DataAccessException {
+    Collection<UserData> actual = mySQLUserDAO.listUsers();
+
+    assertTrue(actual.isEmpty());
   }
 
   @Test

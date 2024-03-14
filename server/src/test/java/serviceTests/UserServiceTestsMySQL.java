@@ -1,4 +1,4 @@
-package dataAccessTests;
+package serviceTests;
 
 import dataAccess.MySQLDAOs.MySQLAuthDAO;
 import dataAccess.MySQLDAOs.MySQLGameDAO;

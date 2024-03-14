@@ -97,7 +97,7 @@ public class MySQLUserDAO implements UserDAO {
     }
   }
 
-  public static void createTable(Connection connection) throws SQLException {
+  private static void createTable(Connection connection) throws SQLException {
     String CREATE_USER_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS userData (" +
             "username VARCHAR(50) PRIMARY KEY," +
             "password VARCHAR(60) NOT NULL," +
