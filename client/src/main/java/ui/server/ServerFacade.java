@@ -1,8 +1,11 @@
-package server;
+package ui.server;
 
 import com.google.gson.Gson;
-import exception.ResponseException;
 import model.AuthData;
+import model.request.LoginRequest;
+import model.request.LogoutRequest;
+import model.request.RegisterRequest;
+import ui.exception.ResponseException;
 import model.GameData;
 import model.UserData;
 
@@ -17,27 +20,19 @@ public class ServerFacade {
     serverUrl = url;
   }
 
-//        Spark.delete("/db", this::clearDatabase);
-//        Spark.post("/user", this::register);
-//        Spark.post("/session", this::login);
-//        Spark.delete("/session", this::logout);
-//        Spark.get("/game", this::listGames);
-//        Spark.post("/game", this::createGame);
-//        Spark.put("/game", this::joinGame);
-
-  public UserData addUser(UserData user) throws ResponseException {
+  public AuthData register(RegisterRequest registerRequest) throws ResponseException {
     var path = "/user";
-    return this.makeRequest("POST", path, user, UserData.class);
+    return this.makeRequest("POST", path, registerRequest, AuthData.class);
   }
 
-  public UserData login(UserData user) throws ResponseException {
-    var path = "/session";
-    return this.makeRequest("POST", path, user, UserData.class);
+  public AuthData login(LoginRequest loginRequest) throws ResponseException {
+    String path = "/session";
+    return this.makeRequest("POST", path, loginRequest, AuthData.class);
   }
 
-  public void logout(String authToken) throws ResponseException {
+  public void logout(LogoutRequest logoutRequest) throws ResponseException {
     var path = "/session";
-    this.makeRequest("DELETE", path, authToken, null);
+    this.makeRequest("DELETE", path, logoutRequest, null);
   }
 
   public GameData[] listGames(String authToken) throws ResponseException {
