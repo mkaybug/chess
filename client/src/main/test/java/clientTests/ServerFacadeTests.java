@@ -1,29 +1,39 @@
 package clientTests;
 
+import dataAccess.AuthDAO;
 import dataAccess.DataAccessException;
 import dataAccess.MySQLDAOs.MySQLAuthDAO;
 import dataAccess.MySQLDAOs.MySQLGameDAO;
 import dataAccess.MySQLDAOs.MySQLUserDAO;
+import model.AuthData;
+import model.GameData;
+import model.response.GamesResponse;
 import service.ClearService;
 
 import org.junit.jupiter.api.*;
 import server.Server;
+import ui.Repl;
+import ui.exception.ResponseException;
+import ui.server.ServerFacade;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ServerFacadeTests {
 
   private static Server server;
+  static ServerFacade facade;
   ClearService clearService = null;
 
   @BeforeAll
   public static void init() {
     server = new Server();
-    var port = server.run(0);
+    var port = server.run(8080);
     System.out.println("Started test HTTP server on " + port);
+    facade = new ServerFacade("http://localhost:8080");
   }
 
   @BeforeEach
@@ -46,138 +56,91 @@ public class ServerFacadeTests {
   }
 
   @Test
-  void testRegisterCommand() {
-    try {
-      // Connect to localhost on the port your server is running
-      Socket socket = new Socket("localhost", 8080); // Assuming your server is running on port 8080
-      OutputStream outputStream = socket.getOutputStream();
-      InputStream inputStream = socket.getInputStream();
-      BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-
-      // Send the register command
-      String registerCommand = "register username password email@gmail.com\n"; // Add '\n' to simulate pressing enter
-      outputStream.write(registerCommand.getBytes());
-      outputStream.flush();
-
-      String line;
-      StringBuilder serverOutput = new StringBuilder();
-      while ((line = reader.readLine()) != null) {
-        serverOutput.append(line).append("\n");
-      }
-
-      // Close the socket
-      reader.close();
-      outputStream.close();
-      socket.close();
-
-      // Assert some condition to check if registration was successful
-      assertTrue(serverOutput.toString().contains("Registration successful, login to play."));
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+  @DisplayName("Register")
+  void register() throws ResponseException {
+    AuthData authData = facade.register("player1", "password", "p1@email.com");
+    assertTrue(authData.authToken().length() > 10);
   }
 
   @Test
-  void testLoginCommand() {
-    try {
-      // Connect to localhost on the port your server is running
-      Socket socket = new Socket("localhost", 8080); // Assuming your server is running on port 8080
-      OutputStream outputStream = socket.getOutputStream();
-      InputStream inputStream = socket.getInputStream();
-      BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-
-      // Send the register command
-      String registerCommand = "register username password email@gmail.com\n"; // Add '\n' to simulate pressing enter
-      outputStream.write(registerCommand.getBytes());
-      outputStream.flush();
-
-      // Send the login command
-      String loginCommand = "login username password\n"; // Add '\n' to simulate pressing enter
-      outputStream.write(loginCommand.getBytes());
-      outputStream.flush();
-
-      String line;
-      StringBuilder serverOutput = new StringBuilder();
-      while ((line = reader.readLine()) != null) {
-        serverOutput.append(line).append("\n");
-      }
-
-      // Close the socket
-      reader.close();
-      outputStream.close();
-      socket.close();
-
-      // Assert some condition to check if registration was successful
-      assertTrue(serverOutput.toString().contains("Welcome username! Type help to begin playing."));
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+  @DisplayName("Login")
+  void login() throws ResponseException {
+    facade.register("player1", "password", "p1@email.com");
+    AuthData authData = facade.login("player1", "password");
+    assertTrue(authData.authToken().length() > 10);
   }
 
   @Test
-  void testLogoutCommand() {
+  @DisplayName("Logout")
+  void logout() throws ResponseException {
+    facade.register("player1", "password", "p1@email.com");
+    AuthData authData = facade.login("player1", "password");
+    assertDoesNotThrow(() -> facade.logout(authData.authToken()));
+  }
+
+  @Test
+  @DisplayName("Create Game")
+  void createGame() throws ResponseException {
+    facade.register("player1", "password", "p1@email.com");
+    AuthData authData = facade.login("player1", "password");
+    GameData game = facade.createGame(authData.authToken(), "the bestest game");
+    assertEquals(game.gameName(), "the bestest game");
+  }
+
+  @Test
+  @DisplayName("List Games")
+  void listGames() throws ResponseException {
+    ArrayList<GameData> expected = new ArrayList<>();
+    facade.register("player1", "password", "p1@email.com");
+    AuthData authData = facade.login("player1", "password");
+    expected.add(facade.createGame(authData.authToken(), "the bestest game"));
+    expected.add(facade.createGame(authData.authToken(), "the game to beat all games"));
+    expected.add(facade.createGame(authData.authToken(), "the greatest game of all time"));
+    GamesResponse actual = facade.listGames(authData.authToken());
+    assertEquals(expected.size(), actual.games().size());
+  }
+
+  @Test
+  @DisplayName("Join Game White Team")
+  void joinGameWhiteTeam() throws ResponseException {
+    facade.register("player1", "password", "p1@email.com");
+    AuthData authData = facade.login("player1", "password");
+    facade.createGame(authData.authToken(), "the bestest game");
+    facade.joinGame(authData.authToken(), "WHITE", "1");
+  }
+
+  @Test
+  void testJoinGameCommand() {
     try {
-      // Connect to localhost on the port your server is running
-      Socket socket = new Socket("localhost", 8080); // Assuming your server is running on port 8080
+      // Connect to localhost
+      Socket socket = new Socket("localhost", 8080);
       OutputStream outputStream = socket.getOutputStream();
       InputStream inputStream = socket.getInputStream();
       BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 
       // Send register command
-      String registerCommand = "register username password email@gmail.com\n"; // Add '\n' to simulate pressing enter
+      String registerCommand = "register username password email@gmail.com\n";
       outputStream.write(registerCommand.getBytes());
       outputStream.flush();
 
       // Send login command
-      String loginCommand = "login username password\n"; // Add '\n' to simulate pressing enter
-      outputStream.write(loginCommand.getBytes());
-      outputStream.flush();
-
-      // Send logout command
-      String logoutCommand = "logout\n"; // Add '\n' to simulate pressing enter
-      outputStream.write(logoutCommand.getBytes());
-      outputStream.flush();
-
-      String line;
-      StringBuilder serverOutput = new StringBuilder();
-      while ((line = reader.readLine()) != null) {
-        serverOutput.append(line).append("\n");
-      }
-
-      // Close the socket
-      reader.close();
-      outputStream.close();
-      socket.close();
-
-      // Assert some condition to check if registration was successful
-      assertTrue(serverOutput.toString().contains("You successfully logged out."));
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-  @Test
-  void testCreateGameCommand() {
-    try {
-      // Connect to localhost on the port your server is running
-      Socket socket = new Socket("localhost", 8080); // Assuming your server is running on port 8080
-      OutputStream outputStream = socket.getOutputStream();
-      InputStream inputStream = socket.getInputStream();
-      BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-
-      // Send register command
-      String registerCommand = "register username password email@gmail.com\n"; // Add '\n' to simulate pressing enter
-      outputStream.write(registerCommand.getBytes());
-      outputStream.flush();
-
-      // Send login command
-      String loginCommand = "login username password\n"; // Add '\n' to simulate pressing enter
+      String loginCommand = "login username password\n";
       outputStream.write(loginCommand.getBytes());
       outputStream.flush();
 
       // Send createGame command
-      String createGameCommand = "createGame the greatest game\n"; // Add '\n' to simulate pressing enter
-      outputStream.write(createGameCommand.getBytes());
+      String createFirstGameCommand = "createGame the greatest game\n";
+      outputStream.write(createFirstGameCommand.getBytes());
+      outputStream.flush();
+
+      // Send joinGame command
+      String joinGameCommand = "join 1 BLACK\n";
+      outputStream.write(joinGameCommand.getBytes());
+      outputStream.flush();
+
+      // Send listGames command
+      String listGamesCommand = "listGames\n";
+      outputStream.write(listGamesCommand.getBytes());
       outputStream.flush();
 
       String line;
@@ -191,8 +154,7 @@ public class ServerFacadeTests {
       outputStream.close();
       socket.close();
 
-      // Assert some condition to check if registration was successful
-      assertTrue(serverOutput.toString().contains("You created a new game \"the greatest game\" the gameID is: 1. Use this ID to join the game."));
+      assertTrue(serverOutput.toString().contains("1: GameData[gameID=1, whiteUsername=null, blackUsername=username, gameName=the greatest game, game=chess.ChessGame@c038203]"));
     } catch (IOException e) {
       e.printStackTrace();
     }
