@@ -1,14 +1,14 @@
 package ui;
 
 import model.AuthData;
-import model.request.LoginRequest;
-import model.request.LogoutRequest;
-import model.request.RegisterRequest;
+import model.GameData;
+import model.response.GamesResponse;
 import ui.exception.ResponseException;
 import ui.server.ServerFacade;
 import static ui.EscapeSequences.*;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 public class ChessClient {
   private String username = null;
@@ -32,13 +32,11 @@ public class ChessClient {
         case "register" -> register(params);
         case "login" -> login(params);
         case "logout" -> logout();
+        case "createGame" -> createGame(params);
+        case "listGames" -> listGames();
+        case "joinGame" -> joinGame(params);
         case "quit" -> "quit";
         default -> help();
-        // Postlogin UIs
-        // help
-        // logout
-        // createGame
-        // listGames
         // joinGame
         // observe
       };
@@ -48,31 +46,70 @@ public class ChessClient {
   }
 
   private String register(String[] params) throws ResponseException {
-    RegisterRequest registerRequest = new RegisterRequest(params[0], params[1], params[2]);
-    System.out.println(server.register(registerRequest));
-    return "You registered.";
+    System.out.println(server.register(params[0], params[1], params[2]));
+    return "Registration successful, login to play.";
   }
 
   private String login(String[] params) throws ResponseException {
     System.out.print(SET_TEXT_COLOR_YELLOW + "Logging in...\n");
 
-    LoginRequest loginRequest = new LoginRequest(params[0], params[1]);
-    AuthData newAuth = server.login(loginRequest);
+    AuthData newAuth = server.login(params[0], params[1]);
 
+    username = params[0];
     authToken = newAuth.authToken();
     state = State.SIGNEDIN;
-    username = params[0];
     return String.format("Welcome %s! Type help to begin playing.", username);
   }
 
   private String logout() throws ResponseException {
     System.out.print(SET_TEXT_COLOR_YELLOW + "Logging out...\n");
+    server.logout(authToken);
 
-    LogoutRequest logoutRequest = new LogoutRequest(authToken);
-    server.logout(logoutRequest);
-
+    username = null;
+    authToken = null;
     state = State.SIGNEDOUT;
     return ("You successfully logged out.");
+  }
+
+  private String createGame(String[] params) throws ResponseException {
+    System.out.print(SET_TEXT_COLOR_YELLOW + "Creating new game...\n");
+
+    StringBuilder gameName = new StringBuilder();
+    for (int i = 0; i < params.length; i++) {
+      gameName.append(params[i]);
+      if (i < params.length - 1) {
+        gameName.append(" ");
+      }
+    }
+
+    GameData newGame = server.createGame(authToken, String.valueOf(gameName));
+    return String.format("You created a new game \"%s\" the gameID is: %s. Use this ID to join the game.", newGame.gameName(), newGame.gameID());
+  }
+
+  private String listGames() throws ResponseException {
+    System.out.print(SET_TEXT_COLOR_YELLOW + "Listing games...\n");
+
+    GamesResponse gamesResponse = server.listGames(authToken);
+    Collection<GameData> games = gamesResponse.games();
+    StringBuilder listGames = new StringBuilder();
+
+    int i = 1;
+    for (GameData game : games) {
+      if (i != 1) {
+        listGames.append("\n");
+      }
+      listGames.append("  ").append(i).append(": ").append(game.toString());
+      i += 1;
+    }
+    return String.valueOf(listGames);
+  }
+
+  private String joinGame(String[] params) throws ResponseException {
+    System.out.print(SET_TEXT_COLOR_YELLOW + "Joining game...\n");
+
+    server.joinGame(authToken, params[0], params[1]);
+
+    return String.format("You joined on team %s", params[0]);
   }
 
   private String help() {

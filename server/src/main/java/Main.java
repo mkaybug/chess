@@ -1,7 +1,4 @@
 import chess.*;
-import dataAccess.DataAccessException;
-import dataAccess.DatabaseManager;
-import dataAccess.MySQLDAOs.MySQLUserDAO;
 import server.Server;
 
 public class Main {

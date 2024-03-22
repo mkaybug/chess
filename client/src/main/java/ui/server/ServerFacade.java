@@ -2,15 +2,17 @@ package ui.server;
 
 import com.google.gson.Gson;
 import model.AuthData;
+import model.request.CreateGameRequest;
+import model.request.JoinGameRequest;
 import model.request.LoginRequest;
-import model.request.LogoutRequest;
 import model.request.RegisterRequest;
+import model.response.GamesResponse;
 import ui.exception.ResponseException;
 import model.GameData;
-import model.UserData;
 
 import java.io.*;
 import java.net.*;
+import java.util.Objects;
 
 public class ServerFacade {
 
@@ -20,47 +22,66 @@ public class ServerFacade {
     serverUrl = url;
   }
 
-  public AuthData register(RegisterRequest registerRequest) throws ResponseException {
+  public AuthData register(String username, String password, String email) throws ResponseException {
     var path = "/user";
-    return this.makeRequest("POST", path, registerRequest, AuthData.class);
+    RegisterRequest registerRequest = new RegisterRequest(username, password, email);
+    return this.makeRequest("POST", path, null, registerRequest, AuthData.class);
   }
 
-  public AuthData login(LoginRequest loginRequest) throws ResponseException {
+  public AuthData login(String username, String password) throws ResponseException {
     String path = "/session";
-    return this.makeRequest("POST", path, loginRequest, AuthData.class);
+    LoginRequest loginRequest = new LoginRequest(username, password);
+    return this.makeRequest("POST", path, null, loginRequest, AuthData.class);
   }
 
-  public void logout(LogoutRequest logoutRequest) throws ResponseException {
+  public void logout(String authToken) throws ResponseException {
     var path = "/session";
-    this.makeRequest("DELETE", path, logoutRequest, null);
+    this.makeRequest("DELETE", path, authToken, null, null);
   }
 
-  public GameData[] listGames(String authToken) throws ResponseException {
+  public GamesResponse listGames(String authToken) throws ResponseException {
     var path = "/game";
     record listGamesResponse(GameData[] game) {
     }
-    var response = this.makeRequest("GET", path, authToken, listGamesResponse.class);
-    return response.game();
+    var response = this.makeRequest("GET", path, authToken, null, GamesResponse.class);
+    return response;
   }
 
-  public GameData createGame(String authToken) throws ResponseException {
+  public GameData createGame(String authToken, String gameName) throws ResponseException {
     var path = "/game";
-    return this.makeRequest("GET", path, authToken, GameData.class);
+    CreateGameRequest createGameRequest = new CreateGameRequest(gameName);
+    return this.makeRequest("GET", path, authToken, createGameRequest, GameData.class);
   }
 
-  public void joinGame(GameData game) throws ResponseException {
+  public void joinGame(String authToken, String teamColor, String gameID) throws ResponseException {
     var path = "/game";
-    this.makeRequest("PUT", path, game, null);
+    JoinGameRequest joinGameRequest = null;
+    if (Objects.equals(teamColor, "BLACK")) {
+      joinGameRequest = new JoinGameRequest(teamColor, Integer.parseInt(gameID));
+    }
+    else if (Objects.equals(teamColor, "WHITE")) {
+      joinGameRequest = new JoinGameRequest(teamColor, Integer.parseInt(gameID));
+    }
+    this.makeRequest("PUT", path, authToken, joinGameRequest, null);
   }
 
-  private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
+  private <T> T makeRequest(String method, String path, String authToken, Object request, Class<T> responseClass) throws ResponseException {
     try {
+      // URL of the endpoint
       URL url = (new URI(serverUrl + path)).toURL();
+      // Open the connection
       HttpURLConnection http = (HttpURLConnection) url.openConnection();
+      // Set the request method (e.g., GET, POST, PUT, DELETE)
       http.setRequestMethod(method);
+      // Set the authorization header -> if an authToken is given
+      if (authToken != null) {
+        http.setRequestProperty("authorization", authToken);
+      }
+      // Set the flag indicating that http will be used for output -> allow to write data to server
       http.setDoOutput(true);
 
       writeBody(request, http);
+      // Send the request
       http.connect();
       throwIfNotSuccessful(http);
       return readBody(http, responseClass);
