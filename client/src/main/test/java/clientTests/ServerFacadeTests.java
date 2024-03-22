@@ -192,7 +192,7 @@ public class ServerFacadeTests {
       socket.close();
 
       // Assert some condition to check if registration was successful
-      assertTrue(serverOutput.toString().contains("You successfully logged out."));
+      assertTrue(serverOutput.toString().contains("You created a new game \"the greatest game\" the gameID is: 1. Use this ID to join the game."));
     } catch (IOException e) {
       e.printStackTrace();
     }
