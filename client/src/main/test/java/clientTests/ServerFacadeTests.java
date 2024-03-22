@@ -28,9 +28,9 @@ public class ServerFacadeTests {
   @BeforeAll
   public static void init() {
     server = new Server();
-    var port = server.run(8080);
+    var port = server.run(0);
     System.out.println("Started test HTTP server on " + port);
-    facade = new ServerFacade("http://localhost:8080");
+    facade = new ServerFacade("http://localhost:" + port);
   }
 
   @BeforeEach
@@ -40,10 +40,6 @@ public class ServerFacadeTests {
     MySQLUserDAO mySQLUserDAO = new MySQLUserDAO();
 
     clearService = new ClearService(mySQLAuthDAO, mySQLGameDAO, mySQLUserDAO);
-  }
-
-  @AfterEach
-  void clearDatabase() throws DataAccessException {
     clearService.clearDatabase();
   }
 
