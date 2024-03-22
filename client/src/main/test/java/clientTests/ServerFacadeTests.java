@@ -1,6 +1,5 @@
 package clientTests;
 
-import dataAccess.AuthDAO;
 import dataAccess.DataAccessException;
 import dataAccess.MySQLDAOs.MySQLAuthDAO;
 import dataAccess.MySQLDAOs.MySQLGameDAO;
@@ -12,13 +11,11 @@ import service.ClearService;
 
 import org.junit.jupiter.api.*;
 import server.Server;
-import ui.Repl;
 import ui.exception.ResponseException;
 import ui.server.ServerFacade;
 
-import java.io.*;
-import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -103,60 +100,142 @@ public class ServerFacadeTests {
   @Test
   @DisplayName("Join Game White Team")
   void joinGameWhiteTeam() throws ResponseException {
+    ArrayList<String> expected = new ArrayList<>();
+    expected.add("1");
+    expected.add("player1");
+    expected.add(null);
+    expected.add("the bestest game");
+
     facade.register("player1", "password", "p1@email.com");
     AuthData authData = facade.login("player1", "password");
     facade.createGame(authData.authToken(), "the bestest game");
     facade.joinGame(authData.authToken(), "WHITE", "1");
+    GamesResponse gamesResponse = facade.listGames(authData.authToken());
+
+    Collection<GameData> games = gamesResponse.games();
+    ArrayList<String> actual = new ArrayList<>();
+    for (GameData game : games) {
+      actual.add(Integer.toString(game.gameID()));
+      actual.add(game.whiteUsername());
+      actual.add(game.blackUsername());
+      actual.add(game.gameName());
+    }
+
+    assertIterableEquals(expected, actual);
   }
 
   @Test
-  void testJoinGameCommand() {
-    try {
-      // Connect to localhost
-      Socket socket = new Socket("localhost", 8080);
-      OutputStream outputStream = socket.getOutputStream();
-      InputStream inputStream = socket.getInputStream();
-      BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+  @DisplayName("Join Game Black Team")
+  void joinGameBlackTeam() throws ResponseException {
+    ArrayList<String> expected = new ArrayList<>();
+    expected.add("1");
+    expected.add(null);
+    expected.add("player1");
+    expected.add("the bestest game");
 
-      // Send register command
-      String registerCommand = "register username password email@gmail.com\n";
-      outputStream.write(registerCommand.getBytes());
-      outputStream.flush();
+    facade.register("player1", "password", "p1@email.com");
+    AuthData authData = facade.login("player1", "password");
+    facade.createGame(authData.authToken(), "the bestest game");
+    facade.joinGame(authData.authToken(), "BLACK", "1");
+    GamesResponse gamesResponse = facade.listGames(authData.authToken());
 
-      // Send login command
-      String loginCommand = "login username password\n";
-      outputStream.write(loginCommand.getBytes());
-      outputStream.flush();
-
-      // Send createGame command
-      String createFirstGameCommand = "createGame the greatest game\n";
-      outputStream.write(createFirstGameCommand.getBytes());
-      outputStream.flush();
-
-      // Send joinGame command
-      String joinGameCommand = "join 1 BLACK\n";
-      outputStream.write(joinGameCommand.getBytes());
-      outputStream.flush();
-
-      // Send listGames command
-      String listGamesCommand = "listGames\n";
-      outputStream.write(listGamesCommand.getBytes());
-      outputStream.flush();
-
-      String line;
-      StringBuilder serverOutput = new StringBuilder();
-      while ((line = reader.readLine()) != null) {
-        serverOutput.append(line).append("\n");
-      }
-
-      // Close the socket
-      reader.close();
-      outputStream.close();
-      socket.close();
-
-      assertTrue(serverOutput.toString().contains("1: GameData[gameID=1, whiteUsername=null, blackUsername=username, gameName=the greatest game, game=chess.ChessGame@c038203]"));
-    } catch (IOException e) {
-      e.printStackTrace();
+    Collection<GameData> games = gamesResponse.games();
+    ArrayList<String> actual = new ArrayList<>();
+    for (GameData game : games) {
+      actual.add(Integer.toString(game.gameID()));
+      actual.add(game.whiteUsername());
+      actual.add(game.blackUsername());
+      actual.add(game.gameName());
     }
+
+    assertIterableEquals(expected, actual);
+  }
+
+  @Test
+  @DisplayName("Join Game Both Teams")
+  void joinBothTeams() throws ResponseException {
+    ArrayList<String> expected = new ArrayList<>();
+    expected.add("1");
+    expected.add("player1");
+    expected.add("player1");
+    expected.add("the bestest game");
+
+    facade.register("player1", "password", "p1@email.com");
+    AuthData authData = facade.login("player1", "password");
+    facade.createGame(authData.authToken(), "the bestest game");
+    facade.joinGame(authData.authToken(), "WHITE", "1");
+    facade.joinGame(authData.authToken(), "BLACK", "1");
+    GamesResponse gamesResponse = facade.listGames(authData.authToken());
+
+    Collection<GameData> games = gamesResponse.games();
+    ArrayList<String> actual = new ArrayList<>();
+    for (GameData game : games) {
+      actual.add(Integer.toString(game.gameID()));
+      actual.add(game.whiteUsername());
+      actual.add(game.blackUsername());
+      actual.add(game.gameName());
+    }
+
+    assertIterableEquals(expected, actual);
+  }
+
+  @Test
+  @DisplayName("Join Game Two Users")
+  void joinGameTwoUsers() throws ResponseException {
+    ArrayList<String> expected = new ArrayList<>();
+    expected.add("1");
+    expected.add("player1");
+    expected.add("player2");
+    expected.add("the bestest game");
+
+    facade.register("player1", "password", "p1@email.com");
+    AuthData authData1 = facade.login("player1", "password");
+    facade.createGame(authData1.authToken(), "the bestest game");
+    facade.joinGame(authData1.authToken(), "WHITE", "1");
+    facade.logout(authData1.authToken());
+
+    facade.register("player2", "password2", "p2@email.com");
+    AuthData authData2 = facade.login("player2", "password2");
+    facade.joinGame(authData2.authToken(), "BLACK", "1");
+
+    GamesResponse gamesResponse = facade.listGames(authData2.authToken());
+
+    Collection<GameData> games = gamesResponse.games();
+    ArrayList<String> actual = new ArrayList<>();
+    for (GameData game : games) {
+      actual.add(Integer.toString(game.gameID()));
+      actual.add(game.whiteUsername());
+      actual.add(game.blackUsername());
+      actual.add(game.gameName());
+    }
+
+    assertIterableEquals(expected, actual);
+  }
+
+  @Test
+  @DisplayName("Join Game As Observer")
+  void joinGameAsObserver() throws ResponseException {
+    ArrayList<String> expected = new ArrayList<>();
+    expected.add("1");
+    expected.add(null);
+    expected.add(null);
+    expected.add("the bestest game");
+
+    facade.register("player1", "password", "p1@email.com");
+    AuthData authData = facade.login("player1", "password");
+    facade.createGame(authData.authToken(), "the bestest game");
+    facade.joinGame(authData.authToken(), null, "1");
+    GamesResponse gamesResponse = facade.listGames(authData.authToken());
+
+    Collection<GameData> games = gamesResponse.games();
+    ArrayList<String> actual = new ArrayList<>();
+    for (GameData game : games) {
+      actual.add(Integer.toString(game.gameID()));
+      actual.add(game.whiteUsername());
+      actual.add(game.blackUsername());
+      actual.add(game.gameName());
+    }
+
+    assertIterableEquals(expected, actual);
   }
 }

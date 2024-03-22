@@ -62,6 +62,9 @@ public class ServerFacade {
     else if (Objects.equals(teamColor, "WHITE")) {
       joinGameRequest = new JoinGameRequest(teamColor, Integer.parseInt(gameID));
     }
+    else {
+      joinGameRequest = new JoinGameRequest(null, Integer.parseInt(gameID));
+    }
     this.makeRequest("PUT", path, authToken, joinGameRequest, null);
   }
 
