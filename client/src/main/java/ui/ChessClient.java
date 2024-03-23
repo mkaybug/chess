@@ -102,14 +102,16 @@ public class ChessClient {
   }
 
   private String joinGame(String[] params) throws ResponseException {
+    PrintChessBoard printBoard = new PrintChessBoard();
+
     System.out.print(SET_TEXT_COLOR_YELLOW + "  Joining game...\n");
     if (params.length > 1) {
       server.joinGame(authToken, params[0], params[1]);
-      return String.format("  You joined on team %s", params[0]);
+      return printBoard.printBothChessBoards() + String.format("You joined on team %s", params[1]);
     }
     else {
-      server.joinGame(authToken, null, params[0]);
-      return "  You joined as an observer.";
+      server.joinGame(authToken, params[0], null);
+      return printBoard.printBothChessBoards() + "You joined as an observer.";
     }
   }
 

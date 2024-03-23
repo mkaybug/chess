@@ -53,7 +53,7 @@ public class ServerFacade {
     return this.makeRequest("GET", path, authToken, createGameRequest, GameData.class);
   }
 
-  public void joinGame(String authToken, String teamColor, String gameID) throws ResponseException {
+  public void joinGame(String authToken, String gameID, String teamColor) throws ResponseException {
     var path = "/game";
     JoinGameRequest joinGameRequest = null;
     if (Objects.equals(teamColor, "BLACK")) {
