@@ -1,5 +1,7 @@
 package ui;
 
+import chess.ChessBoard;
+import chess.ChessGame;
 import model.AuthData;
 import model.GameData;
 import model.response.GamesResponse;
@@ -43,8 +45,12 @@ public class ChessClient {
   }
 
   private String register(String[] params) throws ResponseException {
-    server.register(params[0], params[1], params[2]);
-    return "  Registration successful, login to play.";
+    AuthData newAuth = server.register(params[0], params[1], params[2]);
+
+    username = params[0];
+    authToken = newAuth.authToken();
+    state = State.SIGNEDIN;
+    return "  Registration successful, you are now logged in.";
   }
 
   private String login(String[] params) throws ResponseException {
@@ -102,16 +108,16 @@ public class ChessClient {
   }
 
   private String joinGame(String[] params) throws ResponseException {
-    PrintChessBoard printBoard = new PrintChessBoard();
-
     System.out.print(SET_TEXT_COLOR_YELLOW + "  Joining game...\n");
     if (params.length > 1) {
+      PrintChessBoard printBoard = new PrintChessBoard(new ChessBoard(), params[1]);
       server.joinGame(authToken, params[0], params[1]);
-      return printBoard.printBothChessBoards() + String.format("You joined on team %s", params[1]);
+      return printBoard.printBoard() + String.format("You joined on team %s", params[1]);
     }
     else {
+      PrintChessBoard printBoard = new PrintChessBoard(new ChessBoard(), null);
       server.joinGame(authToken, params[0], null);
-      return printBoard.printBothChessBoards() + "You joined as an observer.";
+      return printBoard.printBoard() + "You joined as an observer.";
     }
   }
 

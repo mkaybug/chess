@@ -21,4 +21,7 @@
     <orderEntry type="library" name="mysql.connector.java" level="project" />
     <orderEntry type="library" name="springframework.security.spring.core" level="project" />
   </component>
+  <component name="SonarLintModuleSettings">
+    <option name="uniqueId" value="4162f74b-178c-47fa-bc1e-7b9b1715b4ba" />
+  </component>
 </module>
