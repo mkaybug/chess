@@ -27,7 +27,7 @@ public class PrintChessBoard {
       return printBlackTeamBoard();
     }
     else {
-      return printWhiteTeamBoard() + printBlackTeamBoard();
+      return printWhiteTeamBoard();
     }
   }
 
