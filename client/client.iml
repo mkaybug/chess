@@ -15,6 +15,7 @@
     <orderEntry type="module" module-name="server" scope="TEST" />
     <orderEntry type="library" name="google.code.gson" level="project" />
     <orderEntry type="library" name="junit.jupiter" level="project" />
+    <orderEntry type="library" name="glassfish.tyrus.bundles.standalone.client" level="project" />
   </component>
   <component name="SonarLintModuleSettings">
     <option name="uniqueId" value="fa95a9f7-973a-4b95-8b78-cffd86d3c062" />

@@ -7,21 +7,28 @@ import model.GameData;
 import model.response.GamesResponse;
 import ui.exception.ResponseException;
 import ui.server.ServerFacade;
+import ui.websocket.NotificationHandler;
+import ui.websocket.WebSocketFacade;
+
 import static ui.EscapeSequences.*;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Objects;
 
 public class ChessClient {
   private String username = null;
   private String authToken = null;
   private final ServerFacade server;
   private final String serverUrl;
+  private final NotificationHandler notificationHandler;
+  private WebSocketFacade ws;
   private State state = State.SIGNEDOUT;
 
-  public ChessClient(String serverUrl) {
+  public ChessClient(String serverUrl, NotificationHandler notificationHandler) {
     server = new ServerFacade(serverUrl);
     this.serverUrl = serverUrl;
+    this.notificationHandler = notificationHandler;
   }
 
   public String eval(String input) {
@@ -110,13 +117,29 @@ public class ChessClient {
   private String joinGame(String[] params) throws ResponseException {
     System.out.print(SET_TEXT_COLOR_YELLOW + "  Joining game...\n");
     if (params.length > 1) {
+      // FIXME this line needs to be removed -> printing chessboard will move to gamePlay UI
       PrintChessBoard printBoard = new PrintChessBoard(new ChessBoard(), params[1]);
+      // Call server join API
       server.joinGame(authToken, params[0], params[1]);
+      // Open WebSocket connection with the server
+      ws = new WebSocketFacade(serverUrl, notificationHandler);
+      // Send JOIN_PLAYER WebSocket message to the server
+      if (Objects.equals(params[1], "WHITE")) {
+        ws.joinPlayer(authToken, Integer.parseInt(params[0]), ChessGame.TeamColor.WHITE);
+      }
+      else if (Objects.equals(params[1], "BLACK")) {
+        ws.joinPlayer(authToken, Integer.parseInt(params[0]), ChessGame.TeamColor.BLACK);
+      }
       return printBoard.printBoard() + String.format("You joined on team %s", params[1]);
     }
     else {
       PrintChessBoard printBoard = new PrintChessBoard(new ChessBoard(), null);
+      // Call server join API
       server.joinGame(authToken, params[0], null);
+      // Open WebSocket connection with the server
+      ws = new WebSocketFacade(serverUrl, notificationHandler);
+      // Send JOIN_OBSERVER WebSocket message to the server
+      ws.joinObserver(authToken, Integer.parseInt(params[0]));
       return printBoard.printBoard() + "You joined as an observer.";
     }
   }
