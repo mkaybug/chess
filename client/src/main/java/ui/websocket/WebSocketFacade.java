@@ -1,13 +1,11 @@
 package ui.websocket;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
 import ui.exception.ResponseException;
 import webSocketMessages.serverMessages.Notification;
-import webSocketMessages.serverMessages.ServerMessage;
-import webSocketMessages.userCommands.JoinObserver;
-import webSocketMessages.userCommands.JoinPlayer;
-import webSocketMessages.userCommands.UserGameCommand;
+import webSocketMessages.userCommands.*;
 
 import javax.websocket.*;
 import java.io.IOException;
@@ -50,7 +48,7 @@ public class WebSocketFacade extends Endpoint {
 
     public void joinPlayer(String authToken, int gameID, ChessGame.TeamColor playerColor) throws ResponseException {
         try {
-            var command = new JoinPlayer(authToken, gameID, playerColor);
+            JoinPlayer command = new JoinPlayer(authToken, gameID, playerColor);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
@@ -59,41 +57,36 @@ public class WebSocketFacade extends Endpoint {
 
     public void joinObserver(String authToken, int gameID) throws ResponseException {
         try {
-            var command = new JoinObserver(authToken, gameID);
+            JoinObserver command = new JoinObserver(authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
         }
     }
 
-    public void makeMove(String authToken) throws ResponseException {
+    public void makeMove(String authToken, int gameID, ChessMove move) throws ResponseException {
         try {
-            var userGameCommand = new UserGameCommand(authToken);
-            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
+            MakeMove command = new MakeMove(authToken, gameID, move);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
         }
     }
 
-    // FIXME Where I left off: Trying to figure out where the command type is specified in PetShop so I can mimic it here.
-
-    public void leaveGame(String authToken) throws ResponseException {
+    public void leaveGame(String authToken, int gameID) throws ResponseException {
         try {
-            var userGameCommand = new UserGameCommand(authToken);
-            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
+            Leave command = new Leave(authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
             this.session.close();
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
         }
     }
 
-    // FIXME Where I left off: Need to figure out where the UserGameCommand type is specified
-    // FIXME Also, ask TAs if this is how you handle the client endpoints
-
-    public void resign(String authToken) throws ResponseException {
+    public void resign(String authToken, int gameID) throws ResponseException {
         try {
-            var userGameCommand = new UserGameCommand(authToken);
-            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
+            Resign command = new Resign(authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
             this.session.close();
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
