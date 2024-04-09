@@ -144,7 +144,7 @@ public class ChessClient {
     }
   }
 
-  private String help() {
+  String help() {
     if (state == State.SIGNEDOUT) {
       return """
                 register <USERNAME> <PASSWORD <EMAIL> - to create an account
