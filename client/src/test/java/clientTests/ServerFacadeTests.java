@@ -23,28 +23,29 @@ public class ServerFacadeTests {
 
   private static Server server;
   static ServerFacade facade;
-  ClearService clearService = null;
+  static ClearService clearService = null;
 
   @BeforeAll
-  public static void init() {
+  public static void init() throws DataAccessException {
     server = new Server();
     var port = server.run(0);
     System.out.println("Started test HTTP server on " + port);
     facade = new ServerFacade("http://localhost:" + port);
+
+    MySQLAuthDAO mySQLAuthDAO = new MySQLAuthDAO();
+    MySQLGameDAO mySQLGameDAO = new MySQLGameDAO();
+    MySQLUserDAO mySQLUserDAO = new MySQLUserDAO();
+    clearService = new ClearService(mySQLAuthDAO, mySQLGameDAO, mySQLUserDAO);
   }
 
   @BeforeEach
   void setUp() throws DataAccessException {
-    MySQLAuthDAO mySQLAuthDAO = new MySQLAuthDAO();
-    MySQLGameDAO mySQLGameDAO = new MySQLGameDAO();
-    MySQLUserDAO mySQLUserDAO = new MySQLUserDAO();
-
-    clearService = new ClearService(mySQLAuthDAO, mySQLGameDAO, mySQLUserDAO);
     clearService.clearDatabase();
   }
 
   @AfterAll
-  static void stopServer() {
+  static void stopServer() throws DataAccessException {
+    clearService.clearDatabase();
     server.stop();
   }
 

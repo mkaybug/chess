@@ -58,7 +58,7 @@ public class Repl implements ServerMessageHandler {
 
   @Override
   public void handleNotification(Notification notification) {
-    System.out.println("Received Notification: " + notification.getMessage());
+    System.out.println("\n" + notification.getMessage());
     printPrompt();
   }
 

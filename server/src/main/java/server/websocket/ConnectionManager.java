@@ -38,4 +38,23 @@ public class ConnectionManager {
             connections.remove(c.authToken);
         }
     }
+
+    public void sendErrorMessage(String currAuthToken, Error message) throws IOException {
+        ArrayList<Connection> removeList = new ArrayList<>();
+        for (Connection c : connections.values()) {
+            if (c.session.isOpen()) {
+                if(c.authToken.equals(currAuthToken)) {
+                    c.send(message.toString());
+                    connections.remove(c.authToken);
+                }
+            } else {
+                removeList.add(c);
+            }
+        }
+
+        // Clean up any connections that were left open.
+        for (var c : removeList) {
+            connections.remove(c.authToken);
+        }
+    }
 }

@@ -39,3 +39,7 @@ h
 8src/main/java/webSocketMessages/userCommands/Resign.java,8\5\85d85300ad46f1c81199fab0c185f62eed8cfb0f
 P
  src/main/java/server/Server.java,4\c\4c405aa622276106ee9ef8c3a2fbee4e76dcafbb
+V
+&src/main/java/service/GameService.java,9\f\9fb869ea241e6fca6054397a70142c04b4036d07
+`
+0src/test/java/clientTests/ServerFacadeTests.java,c\f\cf4a6b87ba93a9e44d28b89d3437e0296868fa89

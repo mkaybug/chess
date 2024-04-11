@@ -97,6 +97,45 @@ public class GameService {
     // Make sure the game exists (since we've already done that, we do nothing
   }
 
+  private void confirmGameCommand(String username, ChessGame.TeamColor playerColor, GameData game) throws DataAccessException {
+    if (playerColor == ChessGame.TeamColor.WHITE) {
+      if (!Objects.equals(game.whiteUsername(), username)) {
+        throw new DataAccessException("Error: team WHITE is being played by someone else");
+      }
+    }
+    if (playerColor == ChessGame.TeamColor.BLACK) {
+      if (!Objects.equals(game.blackUsername(), username)) {
+        throw new DataAccessException("Error: team BLACK is being played by someone else");
+      }
+    }
+  }
+
+  public GameData joinPlayer(int gameID, String authToken, ChessGame.TeamColor playerColor) throws DataAccessException {
+    try {
+      authenticateUser(authToken);
+    }
+    catch (DataAccessException e) {
+      throw new DataAccessException("Error: unauthorized");
+    }
+
+    GameData game = getGame(gameID);
+    AuthData auth = getAuth(authToken);
+
+    try {
+      confirmGameCommand(auth.username(), playerColor, game);
+    }
+    catch (DataAccessException e) {
+      throw new DataAccessException(e.getMessage());
+    }
+
+    return game;
+  }
+
+  public void joinObserver() {}
+  public void makeMove() {}
+  public void leaveGame() {}
+  public void resignGame() {}
+
   public GameData addGame(GameData game) throws DataAccessException {
     return gameDataAccess.addGame(game);
   }

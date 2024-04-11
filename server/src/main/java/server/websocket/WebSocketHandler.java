@@ -4,9 +4,11 @@ import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+import service.GameService;
 import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.userCommands.*;
 
@@ -14,20 +16,19 @@ import java.io.IOException;
 
 @WebSocket
 public class WebSocketHandler {
-
     private final ConnectionManager connections = new ConnectionManager();
+    private final GameService gameService;
+
+    public WebSocketHandler(GameService gameService) {
+        this.gameService = gameService;
+    }
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
         UserGameCommand action = new Gson().fromJson(message, UserGameCommand.class);
         switch (action.getCommandType()) {
-            case JOIN_PLAYER:
-                JoinPlayer joinPlayerCommand = new Gson().fromJson(message, JoinPlayer.class);
-                joinPlayer(joinPlayerCommand.getGameID(), joinPlayerCommand.getAuthString(), joinPlayerCommand.getPlayerColor(), session);
-                break;
-            case JOIN_OBSERVER:
-                JoinObserver joinObserverCommand = new Gson().fromJson(message, JoinObserver.class);
-                joinObserver(joinObserverCommand.getGameID(), joinObserverCommand.getAuthString(), session);
+            case JOIN_PLAYER -> joinPlayer(session, message);
+            case JOIN_OBSERVER -> joinObserver(session, message);
 //            case MAKE_MOVE:
 //                MakeMove makeMoveCommand = new Gson().fromJson(message, MakeMove.class);
 //                makeMove(makeMoveCommand.getGameID(), makeMoveCommand.getMove());
@@ -40,20 +41,44 @@ public class WebSocketHandler {
         }
     }
 
-    private void joinPlayer(int gameID, String authString, ChessGame.TeamColor teamColor, Session session) throws IOException {
-        connections.add(gameID, authString, session);
-        // FIXME later I need to figure out a way to get the username in this message
-        var message = String.format("%s joined game %s on team %s", authString, gameID, teamColor);
-        Notification notification = new Notification(message);
-        connections.broadcast(gameID, authString, notification);
+    private void joinPlayer(Session session, String message) throws IOException {
+        JoinPlayer command = new Gson().fromJson(message, JoinPlayer.class);
+
+        int gameID = command.getGameID();
+        String authToken = command.getAuthString();
+        ChessGame.TeamColor playerColor = command.getPlayerColor();
+
+        try {
+            GameData game = gameService.joinPlayer(gameID, authToken, playerColor);
+
+            connections.add(gameID, authToken, session);
+            String returnMessage = "";
+            if (playerColor == ChessGame.TeamColor.WHITE) {
+                returnMessage = String.format("%s joined game %s on team %s", game.whiteUsername(), gameID, playerColor);
+            }
+            if (playerColor == ChessGame.TeamColor.BLACK) {
+                returnMessage = String.format("%s joined game %s on team %s", game.blackUsername(), gameID, playerColor);
+            }
+
+            Notification notification = new Notification(returnMessage);
+            connections.broadcast(gameID, authToken, notification);
+
+        }
+        catch (DataAccessException e){
+            Error error = new Error(e.getMessage());
+            connections.sendErrorMessage(authToken, error);
+        }
     }
 
-    private void joinObserver(int gameID, String authString, Session session) throws IOException {
-        connections.add(gameID, authString, session);
+    private void joinObserver(Session session, String message) throws IOException {
+        JoinObserver command = new Gson().fromJson(message, JoinObserver.class);
+        int gameID = command.getGameID();
+        String authToken = command.getAuthString();
+        connections.add(gameID, authToken, session);
         // FIXME same, put the username in here
-        var message = String.format("%s joined game %s as an observer", authString, gameID);
-        Notification notification = new Notification(message);
-        connections.broadcast(gameID, authString, notification);
+        var returnMessage = String.format("%s joined game %s as an observer", authToken, gameID);
+        Notification notification = new Notification(returnMessage);
+        connections.broadcast(gameID, authToken, notification);
     }
 
 //    private void makeMove(int gameID, ChessMove move) throws IOException {

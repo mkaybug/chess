@@ -66,7 +66,7 @@ public class Server {
 
 
   public Server() {
-      webSocketHandler = new WebSocketHandler();
+      webSocketHandler = new WebSocketHandler(gameService);
   }
 
   public int run(int desiredPort) {
