@@ -1,6 +1,6 @@
 package ui;
 
-public enum State {
+public enum SignedState {
   SIGNEDOUT,
   SIGNEDIN
 }

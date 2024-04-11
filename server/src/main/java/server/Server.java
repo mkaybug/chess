@@ -18,6 +18,7 @@ import model.request.LoginRequest;
 import model.request.RegisterRequest;
 import model.response.ExceptionMessageResponse;
 import model.response.GamesResponse;
+import server.websocket.WebSocketHandler;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
@@ -61,10 +62,12 @@ public class Server {
     private final GameService gameService = new GameService(mySQLAuthDAO, mySQLGameDAO, mySQLUserDAO);
     private final UserService userService = new UserService(mySQLAuthDAO, mySQLUserDAO);
     private final ClearService clearService = new ClearService(mySQLAuthDAO, mySQLGameDAO, mySQLUserDAO);
+    private final WebSocketHandler webSocketHandler;
+
 
   public Server() {
+      webSocketHandler = new WebSocketHandler();
   }
-
 
   public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -72,6 +75,7 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register endpoints
+        Spark.webSocket("/connect", webSocketHandler);
         Spark.delete("/db", this::clearDatabase);
         Spark.post("/user", this::register);
         Spark.post("/session", this::login);

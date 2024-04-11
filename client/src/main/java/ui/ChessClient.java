@@ -7,8 +7,8 @@ import model.GameData;
 import model.response.GamesResponse;
 import ui.exception.ResponseException;
 import ui.server.ServerFacade;
-import ui.websocket.NotificationHandler;
 import ui.websocket.WebSocketFacade;
+import ui.websocket.messageHandler.ServerMessageHandler;
 
 import static ui.EscapeSequences.*;
 
@@ -21,14 +21,15 @@ public class ChessClient {
   private String authToken = null;
   private final ServerFacade server;
   private final String serverUrl;
-  private final NotificationHandler notificationHandler;
+  private final ServerMessageHandler messageHandler;
   private WebSocketFacade ws;
-  private State state = State.SIGNEDOUT;
+  private SignedState signedState = SignedState.SIGNEDOUT;
+  private GameState gameState = GameState.INACTIVE;
 
-  public ChessClient(String serverUrl, NotificationHandler notificationHandler) {
+  public ChessClient(String serverUrl, ServerMessageHandler messageHandler) {
     server = new ServerFacade(serverUrl);
     this.serverUrl = serverUrl;
-    this.notificationHandler = notificationHandler;
+    this.messageHandler = messageHandler;
   }
 
   public String eval(String input) {
@@ -56,7 +57,7 @@ public class ChessClient {
 
     username = params[0];
     authToken = newAuth.authToken();
-    state = State.SIGNEDIN;
+    signedState = SignedState.SIGNEDIN;
     return "  Registration successful, you are now logged in.";
   }
 
@@ -67,17 +68,21 @@ public class ChessClient {
 
     username = params[0];
     authToken = newAuth.authToken();
-    state = State.SIGNEDIN;
+    signedState = SignedState.SIGNEDIN;
     return String.format("  Welcome %s! Type help to begin playing.", username);
   }
 
   private String logout() throws ResponseException {
+    if (gameState == GameState.ACTIVE) {
+      leaveGame();
+    }
+
     System.out.print(SET_TEXT_COLOR_YELLOW + "  Logging out...\n");
     server.logout(authToken);
 
     username = null;
     authToken = null;
-    state = State.SIGNEDOUT;
+    signedState = SignedState.SIGNEDOUT;
     return (" You successfully logged out.");
   }
 
@@ -122,7 +127,7 @@ public class ChessClient {
       // Call server join API
       server.joinGame(authToken, params[0], params[1]);
       // Open WebSocket connection with the server
-      ws = new WebSocketFacade(serverUrl, notificationHandler);
+      ws = new WebSocketFacade(serverUrl, messageHandler);
       // Send JOIN_PLAYER WebSocket message to the server
       if (Objects.equals(params[1], "WHITE")) {
         ws.joinPlayer(authToken, Integer.parseInt(params[0]), ChessGame.TeamColor.WHITE);
@@ -130,6 +135,7 @@ public class ChessClient {
       else if (Objects.equals(params[1], "BLACK")) {
         ws.joinPlayer(authToken, Integer.parseInt(params[0]), ChessGame.TeamColor.BLACK);
       }
+      gameState = GameState.ACTIVE;
       return printBoard.printBoard() + String.format("You joined on team %s", params[1]);
     }
     else {
@@ -137,21 +143,71 @@ public class ChessClient {
       // Call server join API
       server.joinGame(authToken, params[0], null);
       // Open WebSocket connection with the server
-      ws = new WebSocketFacade(serverUrl, notificationHandler);
+      ws = new WebSocketFacade(serverUrl, messageHandler);
       // Send JOIN_OBSERVER WebSocket message to the server
       ws.joinObserver(authToken, Integer.parseInt(params[0]));
+      gameState = GameState.ACTIVE;
       return printBoard.printBoard() + "You joined as an observer.";
     }
   }
 
+  private String leaveGame() {
+    if (gameState == GameState.INACTIVE) {
+      return "You are not currently playing a game.";
+    }
+    System.out.print(SET_TEXT_COLOR_YELLOW + "  Leaving game...\n");
+    gameState = GameState.ACTIVE;
+    return null;
+  }
+
+  private String redrawGame() {
+    if (gameState == GameState.INACTIVE) {
+      return "You are not currently playing a game.";
+    }
+    return null;
+  }
+
+  private String makeMove() {
+    if (gameState == GameState.INACTIVE) {
+      return "You are not currently playing a game.";
+    }
+    return null;
+  }
+
+  private String resign() {
+    if (gameState == GameState.INACTIVE) {
+      return "You are not currently playing a game.";
+    }
+    gameState = GameState.ACTIVE;
+    return null;
+  }
+
+  private String highlight() {
+    if (gameState == GameState.INACTIVE) {
+      return "You are not currently playing a game.";
+    }
+    return null;
+  }
+
   String help() {
-    if (state == State.SIGNEDOUT) {
+    if (signedState == SignedState.SIGNEDOUT) {
       return """
                 register <USERNAME> <PASSWORD <EMAIL> - to create an account
-                login <USERNAME> <PASSWORD - login
+                login <USERNAME> <PASSWORD> - login
                 quit - exit program
                 help - display possible commands
               """;
+    }
+    if (gameState == GameState.ACTIVE) {
+      return """
+              redraw - redraw the chessboard
+              leave - leave the game
+              move - make a move
+              resign - forfeit but don't leave the game, ends the game
+              highlight - show possible moves
+              help - display possible commands
+              """;
+
     }
     return """
               createGame <GAME_NAME> - start a new game
@@ -165,9 +221,18 @@ public class ChessClient {
   }
 
   public String printState() {
-    if (state == State.SIGNEDOUT) {
+    if (signedState == signedState.SIGNEDOUT) {
       return "LOGGED_OUT";
     }
     return "LOGGED_IN";
   }
 }
+
+// Questions:
+// 1. Should I be returning a chessGame when a player joins a game?
+// 2. How should I handle updating a game? Do I need to make more endpoints?
+// 3. Is it best to handle the game play UI in this class or in its own class?
+// 4. How do you test WebSockets?
+// 5. Project specs -> am I understanding everything, am I missing anything.
+
+// FIXME tip: WebAPI should assign player color field -> WebSocket should verify that the correct username was put there

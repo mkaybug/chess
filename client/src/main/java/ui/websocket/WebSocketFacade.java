@@ -4,6 +4,8 @@ import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
 import ui.exception.ResponseException;
+import ui.websocket.messageHandler.ServerMessageHandler;
+import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.userCommands.*;
 
@@ -16,24 +18,26 @@ import java.net.URISyntaxException;
 public class WebSocketFacade extends Endpoint {
 
     Session session;
-    NotificationHandler notificationHandler;
+    ServerMessageHandler messageHandler;
 
 
-    public WebSocketFacade(String url, NotificationHandler notificationHandler) throws ResponseException {
+    public WebSocketFacade(String url, ServerMessageHandler messageHandler) throws ResponseException {
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/connect");
-            this.notificationHandler = notificationHandler;
+            this.messageHandler = messageHandler;
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-            this.session = container.connectToServer(this, socketURI);
+            this.session = container.connectToServer(new Endpoint() {
+                @Override
+                public void onOpen(Session session, EndpointConfig endpointConfig) {}
+            }, socketURI);
 
             //set message handler
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    Notification notification = new Gson().fromJson(message, Notification.class);
-                    notificationHandler.notify(notification);
+                    handleMessage(message);
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
@@ -41,9 +45,36 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    // Endpoint requires this method, but you don't have to do anything
+    //Endpoint requires this method, but you don't have to do anything
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
+    }
+
+    private void handleMessage(String message) {
+        Gson gson = new Gson();
+        try {
+            Notification notification = gson.fromJson(message, Notification.class);
+            if (notification != null) {
+                messageHandler.handleNotification(notification);
+                return;
+            }
+        } catch (Exception ignored) {}
+
+        try {
+            Error error = gson.fromJson(message, Error.class);
+            if (error != null) {
+                messageHandler.handleError(error);
+                return;
+            }
+        } catch (Exception ignored) {}
+        try {
+            // Try to parse the message as LoadGame
+            LoadGame loadGame = gson.fromJson(message, LoadGame.class);
+            if (loadGame != null) {
+                messageHandler.handleLoadGame(loadGame);
+                return;
+            }
+        } catch (Exception ignored) {}
     }
 
     public void joinPlayer(String authToken, int gameID, ChessGame.TeamColor playerColor) throws ResponseException {

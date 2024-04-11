@@ -1,15 +1,15 @@
 package ui;
 
-import ui.websocket.NotificationHandler;
+import chess.ChessGame;
+import ui.websocket.messageHandler.ServerMessageHandler;
+import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
-import webSocketMessages.userCommands.UserGameCommand;
-import webSocketMessages.serverMessages.ServerMessage;
 
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
-public class Repl implements NotificationHandler {
+public class Repl implements ServerMessageHandler {
   private final ChessClient client;
 
   public Repl(String serverUrl) {
@@ -52,12 +52,25 @@ public class Repl implements NotificationHandler {
     System.out.println();
   }
 
-  public void notify(Notification notification) {
-    System.out.println(SET_TEXT_COLOR_RED + notification.getMessage());
+  private void printPrompt() {
+    System.out.print("\n" + "\u001B[0m" + "[" + client.printState() + "] >>> " + SET_TEXT_COLOR_GREEN);
+  }
+
+  @Override
+  public void handleNotification(Notification notification) {
+    System.out.println("Received Notification: " + notification.getMessage());
     printPrompt();
   }
 
-  private void printPrompt() {
-    System.out.print("\n" + "\u001B[0m" + "[" + client.printState() + "] >>> " + SET_TEXT_COLOR_GREEN);
+  @Override
+  public void handleError(Error error) {
+    System.out.println(SET_TEXT_COLOR_RED + "Received Error: " + error.getMessage());
+    printPrompt();
+  }
+
+  @Override
+  public void handleLoadGame(LoadGame loadGame) {
+    // FIXME add implementation for printing chessBoard
+    printPrompt();
   }
 }
