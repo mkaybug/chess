@@ -131,7 +131,16 @@ public class GameService {
     return game;
   }
 
-  public void joinObserver() {}
+  public GameData joinObserver(int gameID, String authToken) throws DataAccessException {
+    try {
+      authenticateUser(authToken);
+    }
+    catch (DataAccessException e) {
+      throw new DataAccessException("Error: unauthorized");
+    }
+
+    return getGame(gameID);
+  }
   public void makeMove() {}
   public void leaveGame() {}
   public void resignGame() {}

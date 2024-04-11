@@ -4,11 +4,13 @@ import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
+import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import service.GameService;
+import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.userCommands.*;
 
@@ -54,10 +56,10 @@ public class WebSocketHandler {
             connections.add(gameID, authToken, session);
             String returnMessage = "";
             if (playerColor == ChessGame.TeamColor.WHITE) {
-                returnMessage = String.format("%s joined game %s on team %s", game.whiteUsername(), gameID, playerColor);
+                returnMessage = String.format("%s joined game %s on team %s.", game.whiteUsername(), gameID, playerColor);
             }
             if (playerColor == ChessGame.TeamColor.BLACK) {
-                returnMessage = String.format("%s joined game %s on team %s", game.blackUsername(), gameID, playerColor);
+                returnMessage = String.format("%s joined game %s on team %s.", game.blackUsername(), gameID, playerColor);
             }
 
             Notification notification = new Notification(returnMessage);
@@ -72,13 +74,28 @@ public class WebSocketHandler {
 
     private void joinObserver(Session session, String message) throws IOException {
         JoinObserver command = new Gson().fromJson(message, JoinObserver.class);
+
         int gameID = command.getGameID();
         String authToken = command.getAuthString();
-        connections.add(gameID, authToken, session);
-        // FIXME same, put the username in here
-        var returnMessage = String.format("%s joined game %s as an observer", authToken, gameID);
-        Notification notification = new Notification(returnMessage);
-        connections.broadcast(gameID, authToken, notification);
+
+        try {
+            GameData game = gameService.joinObserver(gameID, authToken);
+            AuthData auth = gameService.getAuth(authToken);
+
+            connections.add(gameID, authToken, session);
+
+            String broadcastMessage = String.format("%s joined game %s as an observer.", auth.username(), gameID);
+
+            Notification notification = new Notification(broadcastMessage);
+            connections.broadcast(gameID, authToken, notification);
+
+            LoadGame loadGame = new LoadGame(game);
+            connections.sendLoadGame(authToken, loadGame);
+        }
+        catch (DataAccessException e){
+            Error error = new Error(e.getMessage());
+            connections.sendErrorMessage(authToken, error);
+        }
     }
 
 //    private void makeMove(int gameID, ChessMove move) throws IOException {
