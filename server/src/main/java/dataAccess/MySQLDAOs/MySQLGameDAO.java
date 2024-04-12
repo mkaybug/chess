@@ -137,7 +137,7 @@ public class MySQLGameDAO implements GameDAO {
   }
 
   private static void createTable(Connection connection) throws SQLException {
-    String CREATE_GAME_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS gameData (" +
+    String createGameTableQuery = "CREATE TABLE IF NOT EXISTS gameData (" +
             "gameID INT PRIMARY KEY," +
             "whiteUsername VARCHAR(50)," +
             "blackUsername VARCHAR(50)," +
@@ -145,7 +145,7 @@ public class MySQLGameDAO implements GameDAO {
             "chessGame VARCHAR(3000) NOT NULL" +
             ")";
 
-    try (PreparedStatement preparedStatement = connection.prepareStatement(CREATE_GAME_TABLE_QUERY)) {
+    try (PreparedStatement preparedStatement = connection.prepareStatement(createGameTableQuery)) {
       preparedStatement.executeUpdate();
     }
   }

@@ -99,12 +99,12 @@ public class MySQLAuthDAO implements AuthDAO {
   }
 
   private static void createTable(Connection connection) throws SQLException {
-    String CREATE_AUTH_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS authData (" +
+    String createAuthTableQuery = "CREATE TABLE IF NOT EXISTS authData (" +
             "authToken VARCHAR(50) PRIMARY KEY," +
             "username VARCHAR(50) NOT NULL" +
             ")";
 
-    try (PreparedStatement preparedStatement = connection.prepareStatement(CREATE_AUTH_TABLE_QUERY)) {
+    try (PreparedStatement preparedStatement = connection.prepareStatement(createAuthTableQuery)) {
       preparedStatement.executeUpdate();
     }
   }

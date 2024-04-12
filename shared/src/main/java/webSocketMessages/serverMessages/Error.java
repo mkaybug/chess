@@ -13,10 +13,6 @@ public class Error extends ServerMessage {
     return errorMessage;
   }
 
-  public void setErrorMessage(String errorMessage) {
-    this.errorMessage = errorMessage;
-  }
-
   public String toString() {
     return new Gson().toJson(this);
   }

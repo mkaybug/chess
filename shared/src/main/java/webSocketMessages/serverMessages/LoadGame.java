@@ -14,10 +14,6 @@ public class LoadGame extends ServerMessage {
     return game;
   }
 
-  public void setGame(GameData game) {
-    this.game = game;
-  }
-
   public String toString() {
     return new Gson().toJson(this);
   }

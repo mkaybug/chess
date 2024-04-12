@@ -98,12 +98,12 @@ public class MySQLUserDAO implements UserDAO {
   }
 
   private static void createTable(Connection connection) throws SQLException {
-    String CREATE_USER_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS userData (" +
+    String createUserTableQuery = "CREATE TABLE IF NOT EXISTS userData (" +
             "username VARCHAR(50) PRIMARY KEY," +
             "password VARCHAR(60) NOT NULL," +
             "email VARCHAR(50) NOT NULL" + ")";
 
-    try (PreparedStatement preparedStatement = connection.prepareStatement(CREATE_USER_TABLE_QUERY)) {
+    try (PreparedStatement preparedStatement = connection.prepareStatement(createUserTableQuery)) {
       preparedStatement.executeUpdate();
     }
   }

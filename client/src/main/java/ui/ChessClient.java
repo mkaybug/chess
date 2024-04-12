@@ -48,6 +48,10 @@ public class ChessClient {
         default -> help();
       };
     } catch (ResponseException e) {
+      // Replace this with switch statement to print proper error messages.
+      if (e.statusCode() == 400) {
+        System.out.println("400 status code");
+      }
       return e.getMessage();
     }
   }

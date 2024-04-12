@@ -13,10 +13,6 @@ public class Notification extends ServerMessage {
     return message;
   }
 
-  public void setMessage(String message) {
-    this.message = message;
-  }
-
   public String toString() {
     return new Gson().toJson(this);
   }
