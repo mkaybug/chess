@@ -12,6 +12,7 @@ import java.util.ArrayList;
 public class ChessGame {
     private ChessBoard chessBoard;
     private ChessGame.TeamColor teamTurn = TeamColor.WHITE;
+    private boolean gameOver = false;
 
     public ChessGame() {
         this.chessBoard = new ChessBoard();
@@ -31,6 +32,14 @@ public class ChessGame {
      */
     public void setTeamTurn(TeamColor team) {
         this.teamTurn = team;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
     }
 
     /**

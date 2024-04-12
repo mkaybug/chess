@@ -39,12 +39,8 @@ public class WebSocketHandler {
             case JOIN_PLAYER -> joinPlayer(session, message);
             case JOIN_OBSERVER -> joinObserver(session, message);
             case MAKE_MOVE -> makeMove(message);
-//            case LEAVE:
-//                Leave leaveCommand = new Gson().fromJson(message, Leave.class);
-//                leave(leaveCommand.getGameID());
-//            case RESIGN:
-//                Resign resignCommand = new Gson().fromJson(message, Resign.class);
-//                leave(resignCommand.getGameID());
+            case LEAVE -> leave(message);
+            case RESIGN -> resign(message);
         }
     }
 
@@ -125,16 +121,51 @@ public class WebSocketHandler {
             Notification notification = new Notification(broadcastMessage);
             connections.broadcast(gameID, authToken, notification);
         }
-        catch (DataAccessException e){
+        catch (Exception e){
             Error error = new Error(e.getMessage());
             connections.sendIndividualMessage(authToken, error);
         }
     }
-//
-//    private void leave(int gameID) throws IOException {
-//        connections.remove(gameID);
-//        var message = String.format("%s left the shop", visitorName);
-//        var notification = new Notification(message);
-//        connections.broadcast(visitorName, notification);
-//    }
+
+    public void leave(String message) throws IOException {
+        Leave command = new Gson().fromJson(message, Leave.class);
+
+        int gameID = command.getGameID();
+        String authToken = command.getAuthString();
+
+        try {
+            AuthData authData = gameService.getAuth(command.getAuthString());
+            gameService.leaveGame(gameID, authToken);
+            connections.remove(command.getAuthString());
+
+            String broadcastMessage = String.format("%s has left the game.", authData.username());
+            Notification notification = new Notification(broadcastMessage);
+            connections.broadcast(gameID, authToken, notification);
+        }
+        catch (Exception e) {
+            Error error = new Error(e.getMessage());
+            connections.sendIndividualMessage(authToken, error);
+        }
+    }
+
+    public void resign(String message) throws IOException {
+        Resign command = new Gson().fromJson(message, Resign.class);
+
+        int gameID = command.getGameID();
+        String authToken = command.getAuthString();
+
+        try {
+            AuthData authData = gameService.getAuth(command.getAuthString());
+            gameService.resignGame(gameID, authToken);
+            connections.remove(command.getAuthString());
+
+            String broadcastMessage = String.format("%s has resigned.", authData.username());
+            Notification notification = new Notification(broadcastMessage);
+            connections.broadcast(gameID, authToken, notification);
+        }
+        catch (Exception e) {
+            Error error = new Error(e.getMessage());
+            connections.sendIndividualMessage(authToken, error);
+        }
+    }
 }

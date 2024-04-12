@@ -164,7 +164,7 @@ public class GameService {
     return game;
   }
 
-  public GameData makeMove(int gameID, String authToken, ChessMove move) throws DataAccessException {
+  public GameData makeMove(int gameID, String authToken, ChessMove move) throws DataAccessException, InvalidMoveException {
     try {
       authenticateUser(authToken);
     }
@@ -175,27 +175,62 @@ public class GameService {
     GameData gameData = getGame(gameID);
     AuthData authData = getAuth(authToken);
 
+    if (gameData.game().isGameOver()) {
+      throw new InvalidMoveException("Error: game over");
+    }
+
     if (gameData.game().isInCheckmate(gameData.game().getTeamTurn())) {
-      throw new DataAccessException("Error: checkmate, the game is over");
+      gameData.game().setGameOver(true);
+      putGame(gameData);
+      throw new InvalidMoveException("Error: checkmate, the game is over");
     }
 
     if ((gameData.game().getTeamTurn() == ChessGame.TeamColor.WHITE && !Objects.equals(gameData.whiteUsername(), authData.username())) ||
         (gameData.game().getTeamTurn() == ChessGame.TeamColor.BLACK && !Objects.equals(gameData.blackUsername(), authData.username()))){
-      throw new DataAccessException("Error: not your turn");
+      throw new InvalidMoveException("Error: not your turn");
     }
 
     try {
       gameData.game().makeMove(move);
       putGame(gameData);
-      GameData returnGame = getGame(gameID);
       return getGame(gameID);
     }
     catch (InvalidMoveException e) {
-      throw new DataAccessException("Error: invalid move");
+      throw new InvalidMoveException("Error: invalid move");
     }
   }
-  public void leaveGame() {}
-  public void resignGame() {}
+  public void leaveGame(int gameID, String authToken) throws DataAccessException {
+    try {
+      authenticateUser(authToken);
+    }
+    catch (DataAccessException e) {
+      throw new DataAccessException("Error: unauthorized");
+    }
+
+    GameData gameData = getGame(gameID);
+    AuthData authData = getAuth(authToken);
+
+    if (Objects.equals(authData.username(), gameData.whiteUsername())) {
+      putGame(new GameData(gameData.gameID(), null, gameData.blackUsername(), gameData.gameName(), gameData.game()));
+    }
+    else if (Objects.equals(authData.username(), gameData.blackUsername())) {
+      putGame(new GameData(gameData.gameID(), gameData.whiteUsername(), null, gameData.gameName(), gameData.game()));
+    }
+  }
+  public void resignGame(int gameID, String authToken) throws DataAccessException {
+    try {
+      authenticateUser(authToken);
+    }
+    catch (DataAccessException e) {
+      throw new DataAccessException("Error: unauthorized");
+    }
+
+    // FIXME may need a try catch to check that user is actually playing -> Observers don't terminate the game
+
+    GameData gameData = getGame(gameID);
+    gameData.game().setGameOver(true);
+    putGame(gameData);
+  }
 
   public GameData addGame(GameData game) throws DataAccessException {
     return gameDataAccess.addGame(game);
