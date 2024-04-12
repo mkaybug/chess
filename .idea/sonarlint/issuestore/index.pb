@@ -57,3 +57,7 @@ S
 #src/main/java/chess/ChessPiece.java,8\5\85a88ea4958ed1b3e2cc2a545a3ad992329e985a
 V
 &src/main/java/chess/ChessPosition.java,1\2\12180158e3ed9f2b7cf9588a38f33fca071ee26a
+S
+#src/main/java/chess/ChessBoard.java,1\3\139d0d4bb2b8e11a4e03dbed5b694452387fb52a
+d
+4src/main/java/dataAccess/MySQLDAOs/MySQLGameDAO.java,b\e\be311a23c8c601d3ba70058686dc315c891b17fe

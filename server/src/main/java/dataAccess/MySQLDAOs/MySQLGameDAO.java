@@ -58,11 +58,15 @@ public class MySQLGameDAO implements GameDAO {
 
   public void putGame(GameData game) throws DataAccessException {
     try (Connection conn = DatabaseManager.getConnection()) {
-      String updateStatement = "UPDATE gameData SET whiteUsername=?, blackUsername=? WHERE gameID=?";
+      String updateStatement = "UPDATE gameData SET whiteUsername=?, blackUsername=?, chessGame=? WHERE gameID=?";
       try (PreparedStatement ps = conn.prepareStatement(updateStatement)) {
         ps.setString(1, game.whiteUsername());
         ps.setString(2, game.blackUsername());
-        ps.setInt(3, game.gameID());
+
+        String chessGameJson = new Gson().toJson(game.game());
+        ps.setString(3, chessGameJson);
+
+        ps.setInt(4, game.gameID());
         int rowsAffected = ps.executeUpdate();
         if (rowsAffected == 0) {
           throw new DataAccessException("No rows updated, game with ID " + game.gameID() + " does not exist.");

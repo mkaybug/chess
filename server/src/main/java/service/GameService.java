@@ -187,6 +187,7 @@ public class GameService {
     try {
       gameData.game().makeMove(move);
       putGame(gameData);
+      GameData returnGame = getGame(gameID);
       return getGame(gameID);
     }
     catch (InvalidMoveException e) {

@@ -118,7 +118,7 @@ public class WebSocketHandler {
             connections.sendIndividualMessage(authToken, loadGame);
             connections.broadcast(gameID, authToken, loadGame);
 
-            String pieceMoved = game.game().getBoard().getPiece(move.getStartPosition()).getPieceType().name();
+            String pieceMoved = game.game().getBoard().getPiece(move.getEndPosition()).getPieceType().name();
             String startPosition = move.getStartPosition().toString();
             String endPosition = move.getEndPosition().toString();
             String broadcastMessage = String.format("%s moved %s from %s to %s.", auth.username(), pieceMoved, startPosition, endPosition);
@@ -130,13 +130,6 @@ public class WebSocketHandler {
             connections.sendIndividualMessage(authToken, error);
         }
     }
-
-//    private void makeMove(int gameID, ChessMove move) throws IOException {
-//        connections.add(gameID, session);
-//        var message = String.format("%s is in the shop", visitorName);
-//        var notification = new Notification(message);
-//        connections.broadcast(visitorName, notification);
-//    }
 //
 //    private void leave(int gameID) throws IOException {
 //        connections.remove(gameID);
