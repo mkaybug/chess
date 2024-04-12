@@ -57,3 +57,7 @@ d
 4src/main/java/dataAccess/MySQLDAOs/DatabaseUtil.java,b\a\babc41d0d77e6a5644af2255fc404022bd2b1342
 e
 5src/main/java/dataAccess/MySQLDAOs/ExecuteUpdate.java,5\6\56aaf3abb758142cbb5304a35c2631d2255fb8c7
+s
+Csrc/main/java/ui/websocket/messageHandler/ServerMessageHandler.java,1\5\15d87cfe5790b6d1fe40356c1e76a4025a91c36b
+U
+%src/main/java/ui/PrintChessBoard.java,6\8\68e111dd0e274ceb7f71501e0ea71462a106aa38

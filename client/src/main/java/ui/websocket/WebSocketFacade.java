@@ -7,6 +7,7 @@ import ui.exception.ResponseException;
 import ui.websocket.messageHandler.ServerMessageHandler;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
+import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.*;
 
 import javax.websocket.*;
@@ -51,30 +52,19 @@ public class WebSocketFacade extends Endpoint {
     }
 
     private void handleMessage(String message) {
-        Gson gson = new Gson();
-        try {
-            Notification notification = gson.fromJson(message, Notification.class);
-            if (notification != null) {
-                messageHandler.handleNotification(notification);
-                return;
-            }
-        } catch (Exception ignored) {}
-
-        try {
-            Error error = gson.fromJson(message, Error.class);
-            if (error != null) {
-                messageHandler.handleError(error);
-                return;
-            }
-        } catch (Exception ignored) {}
-        try {
-            // Try to parse the message as LoadGame
-            LoadGame loadGame = gson.fromJson(message, LoadGame.class);
-            if (loadGame != null) {
-                messageHandler.handleLoadGame(loadGame);
-                return;
-            }
-        } catch (Exception ignored) {}
+        ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+        if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
+            Notification notification = new Gson().fromJson(message, Notification.class);
+            messageHandler.handleNotification(notification);
+        }
+        else if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
+            Error error = new Gson().fromJson(message, Error.class);
+            messageHandler.handleError(error);
+        }
+        else {
+            LoadGame loadGame = new Gson().fromJson(message, LoadGame.class);
+            messageHandler.handleLoadGame(loadGame);
+        }
     }
 
     public void joinPlayer(String authToken, int gameID, ChessGame.TeamColor playerColor) throws ResponseException {

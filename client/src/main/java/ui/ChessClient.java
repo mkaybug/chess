@@ -1,6 +1,5 @@
 package ui;
 
-import chess.ChessBoard;
 import chess.ChessGame;
 import model.AuthData;
 import model.GameData;
@@ -19,6 +18,7 @@ import java.util.Objects;
 public class ChessClient {
   private String username = null;
   private String authToken = null;
+  private int gameID = 0;
   private final ServerFacade server;
   private final String serverUrl;
   private final ServerMessageHandler messageHandler;
@@ -44,7 +44,7 @@ public class ChessClient {
         case "createGame" -> createGame(params);
         case "listGames" -> listGames();
         case "joinGame" -> joinGame(params);
-        case "leaveGame" -> leaveGame();
+        case "leave" -> leaveGame();
         case "redrawGame" -> redrawGame();
         case "makeMove" -> makeMove();
         case "resign" -> resign();
@@ -54,14 +54,26 @@ public class ChessClient {
       };
     } catch (ResponseException e) {
       // Replace this with switch statement to print proper error messages.
-      if (e.statusCode() == 400) {
-        System.out.println("400 status code");
+      if (Objects.equals(e.getMessage(), "failure: 400")) {
+        return "Error: bad request";
+      }
+      else if (Objects.equals(e.getMessage(), "failure: 401"))
+        return "Error: unauthorized, please login";
+      else if (Objects.equals(e.getMessage(), "failure: 403")) {
+        return "Error: unauthorized";
       }
       return e.getMessage();
     }
   }
 
   private String register(String[] params) throws ResponseException {
+    if (params.length < 3) {
+      throw new ResponseException(500, "Error: too few arguments");
+    }
+    else if (params.length > 3) {
+      throw new ResponseException(500, "Error: too many arguments");
+    }
+
     AuthData newAuth = server.register(params[0], params[1], params[2]);
 
     username = params[0];
@@ -130,7 +142,13 @@ public class ChessClient {
 
   private String joinGame(String[] params) throws ResponseException {
     System.out.print(SET_TEXT_COLOR_YELLOW + "  Joining game...\n");
-    if (params.length > 1) {
+    if (params.length == 0) {
+      throw new ResponseException(500, "Error: too few arguments");
+    }
+    else if (params.length > 2) {
+      throw new ResponseException(500, "Error: too many arguments");
+    }
+    else if (params.length == 2) {
       // Call server join API
       server.joinGame(authToken, params[0], params[1]);
       // Open WebSocket connection with the server
@@ -142,6 +160,7 @@ public class ChessClient {
       else if (Objects.equals(params[1], "BLACK")) {
         ws.joinPlayer(authToken, Integer.parseInt(params[0]), ChessGame.TeamColor.BLACK);
       }
+      gameID = Integer.parseInt(params[0]);
       gameState = GameState.ACTIVE;
       return String.format("You joined on team %s", params[1]);
     }
@@ -152,18 +171,23 @@ public class ChessClient {
       ws = new WebSocketFacade(serverUrl, messageHandler);
       // Send JOIN_OBSERVER WebSocket message to the server
       ws.joinObserver(authToken, Integer.parseInt(params[0]));
+      gameID = Integer.parseInt(params[0]);
       gameState = GameState.ACTIVE;
       return "You joined as an observer.";
     }
   }
 
-  private String leaveGame() {
+  private String leaveGame() throws ResponseException {
     if (gameState == GameState.INACTIVE) {
       return "You are not currently playing a game.";
     }
+
     System.out.print(SET_TEXT_COLOR_YELLOW + "  Leaving game...\n");
-    gameState = GameState.ACTIVE;
-    return null;
+
+    ws.leaveGame(authToken, gameID);
+    gameID = 0;
+    gameState = GameState.INACTIVE;
+    return "You successfully left the game.";
   }
 
   private String redrawGame() {
@@ -180,12 +204,17 @@ public class ChessClient {
     return null;
   }
 
-  private String resign() {
+  private String resign() throws ResponseException {
     if (gameState == GameState.INACTIVE) {
       return "You are not currently playing a game.";
     }
-    gameState = GameState.ACTIVE;
-    return null;
+
+    System.out.print(SET_TEXT_COLOR_YELLOW + "  Resigning from game...\n");
+
+    ws.resign(authToken, gameID);
+    gameID = 0;
+    gameState = GameState.INACTIVE;
+    return "Success.";
   }
 
   private String highlight() {
@@ -198,7 +227,7 @@ public class ChessClient {
   String help() {
     if (signedState == SignedState.SIGNEDOUT) {
       return """
-                register <USERNAME> <PASSWORD <EMAIL> - to create an account
+                register <USERNAME> <PASSWORD> <EMAIL> - to create an account
                 login <USERNAME> <PASSWORD> - login
                 quit - exit program
                 help - display possible commands
@@ -208,9 +237,9 @@ public class ChessClient {
       return """
               redraw - redraw the chessboard
               leave - leave the game
-              move - make a move
+              move <ROW> <COLUMN> - make a move to this co-ordinate
               resign - forfeit but don't leave the game, ends the game
-              highlight - show possible moves
+              highlight <ROW> <COLUMN> - show possible moves for piece at this co-ordinate
               help - display possible commands
               """;
 

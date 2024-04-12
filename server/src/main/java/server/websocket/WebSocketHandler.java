@@ -3,7 +3,6 @@ package server.websocket;
 import chess.ChessGame;
 import chess.ChessMove;
 
-import chess.ChessPiece;
 import com.google.gson.Gson;
 
 import dataAccess.DataAccessException;

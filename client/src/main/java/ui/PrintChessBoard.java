@@ -13,7 +13,6 @@ public class PrintChessBoard {
   ChessBoard chessBoard;
   ChessGame.TeamColor teamColor;
 
-
   public PrintChessBoard(ChessBoard chessBoard, ChessGame.TeamColor teamColor) {
     this.chessBoard = chessBoard;
     this.teamColor = teamColor;
@@ -47,6 +46,7 @@ public class PrintChessBoard {
     }
 
     board.append("\u001B[0m" + SET_BG_COLOR_LIGHT_GREY + "    a  b  c  d  e  f  g  h    \u001B[0m\n\n");
+    board.append(SET_TEXT_COLOR_BLUE + "Type help for possible actions.");
     return String.valueOf(board);
   }
 
@@ -65,6 +65,7 @@ public class PrintChessBoard {
     }
 
     board.append("\u001B[0m" + SET_BG_COLOR_LIGHT_GREY + "    h  g  f  e  d  c  b  a    \u001B[0m\n\n");
+    board.append(SET_TEXT_COLOR_BLUE + "Type help for possible actions.");
     return String.valueOf(board);
   }
 

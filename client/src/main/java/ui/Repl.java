@@ -1,7 +1,5 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
 import ui.websocket.messageHandler.ServerMessageHandler;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
@@ -50,6 +48,8 @@ public class Repl implements ServerMessageHandler {
           System.out.print(msg);
       }
     }
+
+    System.out.println("\n" + SET_TEXT_COLOR_BLUE + client.eval("leave"));
     System.out.println();
   }
 
@@ -59,7 +59,7 @@ public class Repl implements ServerMessageHandler {
 
   @Override
   public void handleNotification(Notification notification) {
-    System.out.println("\n" + notification.getMessage());
+    System.out.println(SET_TEXT_COLOR_MAGENTA + "\n" + notification.getMessage());
     printPrompt();
   }
 
