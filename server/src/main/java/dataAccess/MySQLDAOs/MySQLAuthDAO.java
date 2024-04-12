@@ -11,13 +11,14 @@ import java.util.Collection;
 import java.sql.*;
 
 public class MySQLAuthDAO implements AuthDAO {
+  private ExecuteUpdate executeUpdate = new ExecuteUpdate();
   public MySQLAuthDAO() throws DataAccessException {
     configureDatabase();
   }
 
   public AuthData addAuth(AuthData auth) throws DataAccessException {
     var statement = "INSERT INTO authData (authToken, username) VALUES (?, ?)";
-    executeUpdate(statement, auth.authToken(), auth.username());
+    executeUpdate.executeUpdate("auth", statement, auth.authToken(), auth.username());
     return new AuthData(auth.authToken(), auth.username());
   }
 
@@ -57,7 +58,7 @@ public class MySQLAuthDAO implements AuthDAO {
 
   public void deleteAuthToken(String authToken) throws DataAccessException {
     var statement = "DELETE FROM authData WHERE authToken=?";
-    executeUpdate(statement, authToken);
+    executeUpdate.executeUpdate("auth", statement, authToken);
   }
 
   public void deleteAllAuthTokens() throws DataAccessException {
@@ -74,19 +75,6 @@ public class MySQLAuthDAO implements AuthDAO {
     var username = rs.getString("username");
 
     return new AuthData(authToken, username);
-  }
-
-  private void executeUpdate(String statement, String... params) throws DataAccessException {
-    try (var conn = DatabaseManager.getConnection()) {
-      try (var ps = conn.prepareStatement(statement)) {
-        for (var i = 0; i < params.length; i++) {
-          ps.setString(i + 1, params[i]);
-        }
-        ps.executeUpdate();
-      }
-    } catch (SQLException e) {
-      throw new DataAccessException("Error: unable to update database with auth info");
-    }
   }
 
   private void configureDatabase() throws DataAccessException {

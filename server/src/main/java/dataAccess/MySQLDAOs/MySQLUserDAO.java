@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.sql.*;
 
 public class MySQLUserDAO implements UserDAO {
+  private ExecuteUpdate executeUpdate = new ExecuteUpdate();
   public MySQLUserDAO() throws DataAccessException {
     configureDatabase();
   }
@@ -20,7 +21,7 @@ public class MySQLUserDAO implements UserDAO {
     String hashedPassword = encoder.encode(user.password());
 
     var statement = "INSERT INTO userData (username, password, email) VALUES (?, ?, ?)";
-    executeUpdate(statement, user.username(), hashedPassword, user.email());
+    executeUpdate.executeUpdate("user", statement, user.username(), hashedPassword, user.email());
     return new UserData(user.username(), hashedPassword, user.email());
   }
 
@@ -73,19 +74,6 @@ public class MySQLUserDAO implements UserDAO {
     var email = rs.getString("email");
 
     return new UserData(username, password, email);
-  }
-
-  private void executeUpdate(String statement, String... params) throws DataAccessException {
-    try (var conn = DatabaseManager.getConnection()) {
-      try (var ps = conn.prepareStatement(statement)) {
-        for (var i = 0; i < params.length; i++) {
-          ps.setString(i + 1, params[i]);
-        }
-        ps.executeUpdate();
-      }
-    } catch (SQLException e) {
-      throw new DataAccessException("Error: unable to update database with user info");
-    }
   }
 
   private void configureDatabase() throws DataAccessException {
