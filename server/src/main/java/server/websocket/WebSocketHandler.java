@@ -58,6 +58,9 @@ public class WebSocketHandler {
         try {
             GameData game = gameService.joinPlayer(gameID, authToken, playerColor);
 
+            LoadGame loadGame = new LoadGame(game);
+            connections.sendIndividualMessage(authToken, loadGame);
+
             String returnMessage = "";
             if (playerColor == ChessGame.TeamColor.WHITE) {
                 returnMessage = String.format("%s joined game %s on team %s.", game.whiteUsername(), gameID, playerColor);
@@ -65,9 +68,6 @@ public class WebSocketHandler {
             if (playerColor == ChessGame.TeamColor.BLACK) {
                 returnMessage = String.format("%s joined game %s on team %s.", game.blackUsername(), gameID, playerColor);
             }
-            LoadGame loadGame = new LoadGame(game);
-            connections.sendIndividualMessage(authToken, loadGame);
-
             Notification notification = new Notification(returnMessage);
             connections.broadcast(gameID, authToken, notification);
         }
@@ -83,19 +83,18 @@ public class WebSocketHandler {
         int gameID = command.getGameID();
         String authToken = command.getAuthString();
 
+        connections.add(gameID, authToken, session);
+
         try {
             GameData game = gameService.joinObserver(gameID, authToken);
             AuthData auth = gameService.getAuth(authToken);
 
-            connections.add(gameID, authToken, session);
-
-            String broadcastMessage = String.format("%s joined game %s as an observer.", auth.username(), gameID);
-
-            Notification notification = new Notification(broadcastMessage);
-            connections.broadcast(gameID, authToken, notification);
-
             LoadGame loadGame = new LoadGame(game);
             connections.sendIndividualMessage(authToken, loadGame);
+
+            String broadcastMessage = String.format("%s joined game %s as an observer.", auth.username(), gameID);
+            Notification notification = new Notification(broadcastMessage);
+            connections.broadcast(gameID, authToken, notification);
         }
         catch (DataAccessException e){
             Error error = new Error(e.getMessage());

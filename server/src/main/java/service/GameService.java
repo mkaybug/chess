@@ -150,16 +150,18 @@ public class GameService {
       throw new DataAccessException("Error: unauthorized");
     }
 
+    GameData game;
     try {
-      GameData game = getGame(gameID);
+      game = getGame(gameID);
       if (game == null) {
         throw new NullPointerException(); // Or any other appropriate exception
       }
-      return game;
     }
     catch (Exception e) {
       throw new DataAccessException("Error: invalid game ID");
     }
+
+    return game;
   }
 
   // FIXME Where I left off: Wrote this out, haven't tested it yet, am I handling all the exceptions? I don't know.
