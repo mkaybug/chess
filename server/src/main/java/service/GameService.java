@@ -63,8 +63,11 @@ public class GameService {
     while (getGame(idNum) != null) {
       idNum += 1;
     }
+
+    ChessGame newGame = new ChessGame();
+    newGame.getBoard().resetBoard();
     // FIXME Change to only return idNum
-    return addGame(new GameData(idNum, null, null, request.gameName(), new ChessGame()));
+    return addGame(new GameData(idNum, null, null, request.gameName(), newGame));
   }
 
   public void joinGame(String authToken, JoinGameRequest request) throws DataAccessException {
@@ -180,8 +183,6 @@ public class GameService {
     }
 
     if (gameData.game().isInCheckmate(gameData.game().getTeamTurn())) {
-      gameData.game().setGameOver(true);
-      putGame(gameData);
       throw new InvalidMoveException("Error: checkmate, the game is over");
     }
 
@@ -225,9 +226,17 @@ public class GameService {
       throw new DataAccessException("Error: unauthorized");
     }
 
-    // FIXME may need a try catch to check that user is actually playing -> Observers don't terminate the game
-
     GameData gameData = getGame(gameID);
+    AuthData authData = getAuth(authToken);
+
+    if (gameData.game().isGameOver()) {
+      throw new DataAccessException("Error: game is already over, can't resign");
+    }
+
+    if (!Objects.equals(authData.username(), gameData.whiteUsername()) && !Objects.equals(authData.username(), gameData.blackUsername())) {
+      throw new DataAccessException("Error: observers can't resign, leave instead");
+    }
+
     gameData.game().setGameOver(true);
     putGame(gameData);
   }
