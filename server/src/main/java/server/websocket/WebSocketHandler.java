@@ -157,11 +157,13 @@ public class WebSocketHandler {
         try {
             AuthData authData = gameService.getAuth(command.getAuthString());
             gameService.resignGame(gameID, authToken);
-            connections.remove(command.getAuthString());
 
             String broadcastMessage = String.format("%s has resigned.", authData.username());
             Notification notification = new Notification(broadcastMessage);
             connections.broadcast(gameID, authToken, notification);
+            connections.sendIndividualMessage(authToken, notification);
+
+            connections.remove(command.getAuthString());
         }
         catch (Exception e) {
             Error error = new Error(e.getMessage());
