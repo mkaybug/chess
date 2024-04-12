@@ -115,23 +115,7 @@ public class GameService {
   }
 
   public GameData joinPlayer(int gameID, String authToken, ChessGame.TeamColor playerColor) throws DataAccessException {
-    try {
-      authenticateUser(authToken);
-    }
-    catch (DataAccessException e) {
-      throw new DataAccessException("Error: unauthorized");
-    }
-
-    GameData game;
-    try {
-      game = getGame(gameID);
-      if (game == null) {
-        throw new NullPointerException(); // Or any other appropriate exception
-      }
-    }
-    catch (Exception e) {
-      throw new DataAccessException("Error: invalid game ID");
-    }
+    GameData game = verifyJoin(gameID, authToken);
 
     AuthData auth = getAuth(authToken);
     try {
@@ -144,7 +128,7 @@ public class GameService {
     return game;
   }
 
-  public GameData joinObserver(int gameID, String authToken) throws DataAccessException {
+  private GameData verifyJoin(int gameID, String authToken) throws DataAccessException {
     try {
       authenticateUser(authToken);
     }
@@ -162,8 +146,11 @@ public class GameService {
     catch (Exception e) {
       throw new DataAccessException("Error: invalid game ID");
     }
-
     return game;
+  }
+
+  public GameData joinObserver(int gameID, String authToken) throws DataAccessException {
+    return verifyJoin(gameID, authToken);
   }
 
   public GameData makeMove(int gameID, String authToken, ChessMove move) throws DataAccessException, InvalidMoveException {
