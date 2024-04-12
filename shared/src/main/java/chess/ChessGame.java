@@ -13,7 +13,9 @@ public class ChessGame {
     private ChessBoard chessBoard;
     private ChessGame.TeamColor teamTurn = TeamColor.WHITE;
 
-    public ChessGame() {}
+    public ChessGame() {
+        this.chessBoard = new ChessBoard();
+    }
 
     /**
      * @return Which team's turn it is

@@ -36,7 +36,7 @@ public class ChessPosition {
 
     @Override
     public String toString() {
-        return "(row=" + row + ", col=" + col + ')';
+        return "(" + row + ", " + col + ')';
     }
 
     // FIXME I generated these but only ended up needing the hashCode() override in the ChessMove class, delete them if they cause problems

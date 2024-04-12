@@ -3,6 +3,7 @@ package server.websocket;
 import chess.ChessGame;
 import chess.ChessMove;
 
+import chess.ChessPiece;
 import com.google.gson.Gson;
 
 import dataAccess.DataAccessException;
@@ -37,7 +38,7 @@ public class WebSocketHandler {
         switch (action.getCommandType()) {
             case JOIN_PLAYER -> joinPlayer(session, message);
             case JOIN_OBSERVER -> joinObserver(session, message);
-            case MAKE_MOVE -> makeMove(session, message);
+            case MAKE_MOVE -> makeMove(message);
 //            case LEAVE:
 //                Leave leaveCommand = new Gson().fromJson(message, Leave.class);
 //                leave(leaveCommand.getGameID());
@@ -102,7 +103,7 @@ public class WebSocketHandler {
         }
     }
 
-    private void makeMove(Session session, String message) throws IOException {
+    private void makeMove(String message) throws IOException {
         MakeMove command = new Gson().fromJson(message, MakeMove.class);
 
         int gameID = command.getGameID();
@@ -113,13 +114,16 @@ public class WebSocketHandler {
             GameData game = gameService.makeMove(gameID, authToken, move);
             AuthData auth = gameService.getAuth(authToken);
 
-            String broadcastMessage = String.format("%s made a move.", auth.username(), gameID);
-
-            Notification notification = new Notification(broadcastMessage);
-            connections.broadcast(gameID, authToken, notification);
-
             LoadGame loadGame = new LoadGame(game);
             connections.sendIndividualMessage(authToken, loadGame);
+            connections.broadcast(gameID, authToken, loadGame);
+
+            String pieceMoved = game.game().getBoard().getPiece(move.getStartPosition()).getPieceType().name();
+            String startPosition = move.getStartPosition().toString();
+            String endPosition = move.getEndPosition().toString();
+            String broadcastMessage = String.format("%s moved %s from %s to %s.", auth.username(), pieceMoved, startPosition, endPosition);
+            Notification notification = new Notification(broadcastMessage);
+            connections.broadcast(gameID, authToken, notification);
         }
         catch (DataAccessException e){
             Error error = new Error(e.getMessage());

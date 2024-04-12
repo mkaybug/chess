@@ -164,7 +164,6 @@ public class GameService {
     return game;
   }
 
-  // FIXME Where I left off: Wrote this out, haven't tested it yet, am I handling all the exceptions? I don't know.
   public GameData makeMove(int gameID, String authToken, ChessMove move) throws DataAccessException {
     try {
       authenticateUser(authToken);
@@ -174,6 +173,16 @@ public class GameService {
     }
 
     GameData gameData = getGame(gameID);
+    AuthData authData = getAuth(authToken);
+
+    if (gameData.game().isInCheckmate(gameData.game().getTeamTurn())) {
+      throw new DataAccessException("Error: checkmate, the game is over");
+    }
+
+    if ((gameData.game().getTeamTurn() == ChessGame.TeamColor.WHITE && !Objects.equals(gameData.whiteUsername(), authData.username())) ||
+        (gameData.game().getTeamTurn() == ChessGame.TeamColor.BLACK && !Objects.equals(gameData.blackUsername(), authData.username()))){
+      throw new DataAccessException("Error: not your turn");
+    }
 
     try {
       gameData.game().makeMove(move);

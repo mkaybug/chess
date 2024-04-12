@@ -53,3 +53,7 @@ j
 :src/test/java/passoffTests/serverTests/WebSocketTests.java,7\0\70854cd385238f0f3a2b74a52116b5c6f4af0553
 U
 %src/main/java/ui/PrintChessBoard.java,6\8\68e111dd0e274ceb7f71501e0ea71462a106aa38
+S
+#src/main/java/chess/ChessPiece.java,8\5\85a88ea4958ed1b3e2cc2a545a3ad992329e985a
+V
+&src/main/java/chess/ChessPosition.java,1\2\12180158e3ed9f2b7cf9588a38f33fca071ee26a
