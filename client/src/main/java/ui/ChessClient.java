@@ -122,8 +122,6 @@ public class ChessClient {
   private String joinGame(String[] params) throws ResponseException {
     System.out.print(SET_TEXT_COLOR_YELLOW + "  Joining game...\n");
     if (params.length > 1) {
-      // FIXME this line needs to be removed -> printing chessboard will move to gamePlay UI
-      PrintChessBoard printBoard = new PrintChessBoard(new ChessBoard(), params[1]);
       // Call server join API
       server.joinGame(authToken, params[0], params[1]);
       // Open WebSocket connection with the server
@@ -136,10 +134,9 @@ public class ChessClient {
         ws.joinPlayer(authToken, Integer.parseInt(params[0]), ChessGame.TeamColor.BLACK);
       }
       gameState = GameState.ACTIVE;
-      return printBoard.printBoard() + String.format("You joined on team %s", params[1]);
+      return String.format("You joined on team %s", params[1]);
     }
     else {
-      PrintChessBoard printBoard = new PrintChessBoard(new ChessBoard(), null);
       // Call server join API
       server.joinGame(authToken, params[0], null);
       // Open WebSocket connection with the server
@@ -147,7 +144,7 @@ public class ChessClient {
       // Send JOIN_OBSERVER WebSocket message to the server
       ws.joinObserver(authToken, Integer.parseInt(params[0]));
       gameState = GameState.ACTIVE;
-      return printBoard.printBoard() + "You joined as an observer.";
+      return "You joined as an observer.";
     }
   }
 
@@ -225,6 +222,17 @@ public class ChessClient {
       return "LOGGED_OUT";
     }
     return "LOGGED_IN";
+  }
+
+  public String printChessBoard(GameData gameData) {
+    PrintChessBoard printChessBoard;
+    if (Objects.equals(gameData.blackUsername(), username)) {
+      printChessBoard = new PrintChessBoard(gameData.game().getBoard(), ChessGame.TeamColor.BLACK);
+    }
+    else {
+      printChessBoard = new PrintChessBoard(gameData.game().getBoard(), ChessGame.TeamColor.WHITE);
+    }
+    return printChessBoard.printBoard();
   }
 }
 

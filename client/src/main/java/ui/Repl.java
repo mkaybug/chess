@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import ui.websocket.messageHandler.ServerMessageHandler;
 import webSocketMessages.serverMessages.LoadGame;
@@ -64,13 +65,13 @@ public class Repl implements ServerMessageHandler {
 
   @Override
   public void handleError(Error error) {
-    System.out.println(SET_TEXT_COLOR_RED + "Received Error: " + error.getMessage());
+    System.out.println(SET_TEXT_COLOR_RED + "\n" + error.getMessage());
     printPrompt();
   }
 
   @Override
   public void handleLoadGame(LoadGame loadGame) {
-    // FIXME add implementation for printing chessBoard
+    System.out.println(client.printChessBoard(loadGame.getGame()));
     printPrompt();
   }
 }

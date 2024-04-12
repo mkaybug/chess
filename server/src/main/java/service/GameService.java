@@ -2,6 +2,8 @@ package service;
 
 import chess.ChessGame;
 
+import chess.ChessMove;
+import chess.InvalidMoveException;
 import dataAccess.DataAccessException;
 import dataAccess.GameDAO;
 import dataAccess.AuthDAO;
@@ -118,9 +120,18 @@ public class GameService {
       throw new DataAccessException("Error: unauthorized");
     }
 
-    GameData game = getGame(gameID);
-    AuthData auth = getAuth(authToken);
+    GameData game;
+    try {
+      game = getGame(gameID);
+      if (game == null) {
+        throw new NullPointerException(); // Or any other appropriate exception
+      }
+    }
+    catch (Exception e) {
+      throw new DataAccessException("Error: invalid game ID");
+    }
 
+    AuthData auth = getAuth(authToken);
     try {
       confirmGameCommand(auth.username(), playerColor, game);
     }
@@ -139,9 +150,38 @@ public class GameService {
       throw new DataAccessException("Error: unauthorized");
     }
 
-    return getGame(gameID);
+    try {
+      GameData game = getGame(gameID);
+      if (game == null) {
+        throw new NullPointerException(); // Or any other appropriate exception
+      }
+      return game;
+    }
+    catch (Exception e) {
+      throw new DataAccessException("Error: invalid game ID");
+    }
   }
-  public void makeMove() {}
+
+  // FIXME Where I left off: Wrote this out, haven't tested it yet, am I handling all the exceptions? I don't know.
+  public GameData makeMove(int gameID, String authToken, ChessMove move) throws DataAccessException {
+    try {
+      authenticateUser(authToken);
+    }
+    catch (DataAccessException e) {
+      throw new DataAccessException("Error: unauthorized");
+    }
+
+    GameData gameData = getGame(gameID);
+
+    try {
+      gameData.game().makeMove(move);
+      putGame(gameData);
+      return getGame(gameID);
+    }
+    catch (InvalidMoveException e) {
+      throw new DataAccessException("Error: invalid move");
+    }
+  }
   public void leaveGame() {}
   public void resignGame() {}
 

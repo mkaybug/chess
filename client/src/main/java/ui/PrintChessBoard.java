@@ -11,19 +11,19 @@ import static ui.EscapeSequences.*;
 
 public class PrintChessBoard {
   ChessBoard chessBoard;
-  String teamColor;
+  ChessGame.TeamColor teamColor;
 
 
-  public PrintChessBoard(ChessBoard chessBoard, String teamColor) {
+  public PrintChessBoard(ChessBoard chessBoard, ChessGame.TeamColor teamColor) {
     this.chessBoard = chessBoard;
     this.teamColor = teamColor;
   }
 
   public String printBoard() {
-    if (Objects.equals(teamColor, "WHITE")) {
+    if (Objects.equals(teamColor, ChessGame.TeamColor.WHITE)) {
       return printWhiteTeamBoard();
     }
-    else if (Objects.equals(teamColor , "BLACK")) {
+    else if (Objects.equals(teamColor , ChessGame.TeamColor.BLACK)) {
       return printBlackTeamBoard();
     }
     else {

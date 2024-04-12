@@ -2,16 +2,22 @@ package server.websocket;
 
 import chess.ChessGame;
 import chess.ChessMove;
+
 import com.google.gson.Gson;
+
 import dataAccess.DataAccessException;
 import model.AuthData;
 import model.GameData;
+
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+
 import service.GameService;
+
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
+import webSocketMessages.serverMessages.Error;
 import webSocketMessages.userCommands.*;
 
 import java.io.IOException;
@@ -31,9 +37,7 @@ public class WebSocketHandler {
         switch (action.getCommandType()) {
             case JOIN_PLAYER -> joinPlayer(session, message);
             case JOIN_OBSERVER -> joinObserver(session, message);
-//            case MAKE_MOVE:
-//                MakeMove makeMoveCommand = new Gson().fromJson(message, MakeMove.class);
-//                makeMove(makeMoveCommand.getGameID(), makeMoveCommand.getMove());
+            case MAKE_MOVE -> makeMove(session, message);
 //            case LEAVE:
 //                Leave leaveCommand = new Gson().fromJson(message, Leave.class);
 //                leave(leaveCommand.getGameID());
@@ -50,10 +54,10 @@ public class WebSocketHandler {
         String authToken = command.getAuthString();
         ChessGame.TeamColor playerColor = command.getPlayerColor();
 
+        connections.add(gameID, authToken, session);
         try {
             GameData game = gameService.joinPlayer(gameID, authToken, playerColor);
 
-            connections.add(gameID, authToken, session);
             String returnMessage = "";
             if (playerColor == ChessGame.TeamColor.WHITE) {
                 returnMessage = String.format("%s joined game %s on team %s.", game.whiteUsername(), gameID, playerColor);
@@ -61,14 +65,15 @@ public class WebSocketHandler {
             if (playerColor == ChessGame.TeamColor.BLACK) {
                 returnMessage = String.format("%s joined game %s on team %s.", game.blackUsername(), gameID, playerColor);
             }
+            LoadGame loadGame = new LoadGame(game);
+            connections.sendIndividualMessage(authToken, loadGame);
 
             Notification notification = new Notification(returnMessage);
             connections.broadcast(gameID, authToken, notification);
-
         }
         catch (DataAccessException e){
             Error error = new Error(e.getMessage());
-            connections.sendErrorMessage(authToken, error);
+            connections.sendIndividualMessage(authToken, error);
         }
     }
 
@@ -90,11 +95,36 @@ public class WebSocketHandler {
             connections.broadcast(gameID, authToken, notification);
 
             LoadGame loadGame = new LoadGame(game);
-            connections.sendLoadGame(authToken, loadGame);
+            connections.sendIndividualMessage(authToken, loadGame);
         }
         catch (DataAccessException e){
             Error error = new Error(e.getMessage());
-            connections.sendErrorMessage(authToken, error);
+            connections.sendIndividualMessage(authToken, error);
+        }
+    }
+
+    private void makeMove(Session session, String message) throws IOException {
+        MakeMove command = new Gson().fromJson(message, MakeMove.class);
+
+        int gameID = command.getGameID();
+        String authToken = command.getAuthString();
+        ChessMove move = command.getMove();
+
+        try {
+            GameData game = gameService.makeMove(gameID, authToken, move);
+            AuthData auth = gameService.getAuth(authToken);
+
+            String broadcastMessage = String.format("%s made a move.", auth.username(), gameID);
+
+            Notification notification = new Notification(broadcastMessage);
+            connections.broadcast(gameID, authToken, notification);
+
+            LoadGame loadGame = new LoadGame(game);
+            connections.sendIndividualMessage(authToken, loadGame);
+        }
+        catch (DataAccessException e){
+            Error error = new Error(e.getMessage());
+            connections.sendIndividualMessage(authToken, error);
         }
     }
 

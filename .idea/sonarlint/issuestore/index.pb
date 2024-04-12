@@ -43,3 +43,13 @@ V
 &src/main/java/service/GameService.java,9\f\9fb869ea241e6fca6054397a70142c04b4036d07
 `
 0src/test/java/clientTests/ServerFacadeTests.java,c\f\cf4a6b87ba93a9e44d28b89d3437e0296868fa89
+R
+"src/main/java/chess/ChessMove.java,4\2\429c55da8253d8ee02138d80d1951c5e7d4a468c
+R
+"src/main/java/chess/ChessGame.java,7\3\73bf4fdc57c71c6f70f600b9fea515a646b27eef
+Q
+!src/main/java/model/GameData.java,6\7\67153312f42cfc25e918e7241d99ff3d32f0ce01
+j
+:src/test/java/passoffTests/serverTests/WebSocketTests.java,7\0\70854cd385238f0f3a2b74a52116b5c6f4af0553
+U
+%src/main/java/ui/PrintChessBoard.java,6\8\68e111dd0e274ceb7f71501e0ea71462a106aa38
