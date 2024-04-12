@@ -235,12 +235,3 @@ public class ChessClient {
     return printChessBoard.printBoard();
   }
 }
-
-// Questions:
-// 1. Should I be returning a chessGame when a player joins a game?
-// 2. How should I handle updating a game? Do I need to make more endpoints?
-// 3. Is it best to handle the game play UI in this class or in its own class?
-// 4. How do you test WebSockets?
-// 5. Project specs -> am I understanding everything, am I missing anything.
-
-// FIXME tip: WebAPI should assign player color field -> WebSocket should verify that the correct username was put there

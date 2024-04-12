@@ -66,7 +66,6 @@ public class GameService {
 
     ChessGame newGame = new ChessGame();
     newGame.getBoard().resetBoard();
-    // FIXME Change to only return idNum
     return addGame(new GameData(idNum, null, null, request.gameName(), newGame));
   }
 

@@ -39,7 +39,6 @@ public class ChessPosition {
         return "(" + row + ", " + col + ')';
     }
 
-    // FIXME I generated these but only ended up needing the hashCode() override in the ChessMove class, delete them if they cause problems
     @Override
     public boolean equals(Object o) {
         if(this == o) return true;

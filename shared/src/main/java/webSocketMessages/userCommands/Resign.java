@@ -11,8 +11,4 @@ public class Resign extends UserGameCommand {
   public int getGameID() {
     return gameID;
   }
-
-  public void setGameID(int gameID) {
-    this.gameID = gameID;
-  }
 }

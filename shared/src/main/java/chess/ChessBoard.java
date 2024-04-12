@@ -11,7 +11,7 @@ import java.util.Arrays;
 public class ChessBoard {
     private ChessPiece[][] boardSquares = new ChessPiece[8][8];
     public ChessBoard() {
-        // FIXME I may later want to reset the board as soon as a new board is created
+        // I may later want to reset the board as soon as a new board is created
 //        this.resetBoard();
     }
 
