@@ -48,7 +48,7 @@ public class PrintChessBoard {
       boolean whiteSpace = i % 2 == 0;
       board.append("\u001B[0m" + SET_BG_COLOR_LIGHT_GREY + " ").append(i).append(" ");
 
-      for (int j = 8; j > 0; j--) {
+      for (int j = 1; j < 9; j++) {
         whiteSpace = createSquareString(board, i, whiteSpace, j);
       }
 
@@ -68,7 +68,7 @@ public class PrintChessBoard {
       boolean whiteSpace = i % 2 != 0;
       board.append("\u001B[0m" + SET_BG_COLOR_LIGHT_GREY + " ").append(i).append(" ");
 
-      for (int j = 1; j < 9; j++) {
+      for (int j = 8; j > 0; j--) {
         whiteSpace = createSquareString(board, i, whiteSpace, j);
       }
       board.append("\u001B[0m" + SET_BG_COLOR_LIGHT_GREY + " ").append(i).append(" \u001B[0m\n");
@@ -138,7 +138,7 @@ public class PrintChessBoard {
       boolean whiteSpace = i % 2 == 0;
       board.append("\u001B[0m" + SET_BG_COLOR_LIGHT_GREY + " ").append(i).append(" ");
 
-      for (int j = 8; j > 0; j--) {
+      for (int j = 1; j < 9; j++) {
         if (possibleMoves.contains(new ChessMove(startPosition, new ChessPosition(i, j), null))) {
           whiteSpace = createHighlightSquare(board, i, whiteSpace, j);
         }
@@ -166,7 +166,7 @@ public class PrintChessBoard {
       boolean whiteSpace = i % 2 != 0;
       board.append("\u001B[0m" + SET_BG_COLOR_LIGHT_GREY + " ").append(i).append(" ");
 
-      for (int j = 1; j < 9; j++) {
+      for (int j = 8; j > 0; j--) {
         if (possibleMoves.contains(new ChessMove(startPosition, new ChessPosition(i, j), null))) {
           whiteSpace = createHighlightSquare(board, i, whiteSpace, j);
         }
