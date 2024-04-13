@@ -59,7 +59,7 @@ public class ChessClient {
         case "redraw" -> redrawGame();
         case "makeMove" -> makeMove(params);
         case "resign" -> resign();
-//        case "highlight" -> highlight();
+        case "highlight" -> highlight(params);
         case "quit" -> "quit";
         default -> help();
       };
@@ -246,15 +246,14 @@ public class ChessClient {
     return "Success.";
   }
 
-//  private String highlight() throws ResponseException {
-//    if (gameState == GameState.INACTIVE) {
-//      return "You are not currently playing a game.";
-//    }
-//
-//    ws.highlight(authToken, gameID);
-//    return "Board redrawn.";
-//
-//  }
+  private String highlight(String[] params) {
+    if (gameState == GameState.INACTIVE) {
+      return "You are not currently playing a game.";
+    }
+
+    return printChessBoard.highlightPossibleMoves(Integer.parseInt(params[0]), Integer.parseInt(params[1]));
+
+  }
 
   String help() {
     if (signedState == SignedState.SIGNEDOUT) {
