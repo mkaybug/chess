@@ -61,3 +61,5 @@ s
 Csrc/main/java/ui/websocket/messageHandler/ServerMessageHandler.java,1\5\15d87cfe5790b6d1fe40356c1e76a4025a91c36b
 U
 %src/main/java/ui/PrintChessBoard.java,6\8\68e111dd0e274ceb7f71501e0ea71462a106aa38
+m
+=src/main/java/webSocketMessages/userCommands/RedrawBoard.java,4\e\4e452b7e48016d0aaef449bc8761186f50aaa472

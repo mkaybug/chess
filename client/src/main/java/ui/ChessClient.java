@@ -1,6 +1,8 @@
 package ui;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
 import model.AuthData;
 import model.GameData;
 import model.response.GamesResponse;
@@ -19,6 +21,7 @@ public class ChessClient {
   private String username = null;
   private String authToken = null;
   private int gameID = 0;
+  private PrintChessBoard printChessBoard = null;
   private final ServerFacade server;
   private final String serverUrl;
   private final ServerMessageHandler messageHandler;
@@ -30,6 +33,14 @@ public class ChessClient {
     server = new ServerFacade(serverUrl);
     this.serverUrl = serverUrl;
     this.messageHandler = messageHandler;
+  }
+
+  public PrintChessBoard getPrintChessBoard() {
+    return printChessBoard;
+  }
+
+  public void setPrintChessBoard(PrintChessBoard printChessBoard) {
+    this.printChessBoard = printChessBoard;
   }
 
   public String eval(String input) {
@@ -45,10 +56,10 @@ public class ChessClient {
         case "listGames" -> listGames();
         case "joinGame" -> joinGame(params);
         case "leave" -> leaveGame();
-        case "redrawGame" -> redrawGame();
-        case "makeMove" -> makeMove();
+        case "redraw" -> redrawGame();
+        case "makeMove" -> makeMove(params);
         case "resign" -> resign();
-        case "highlight" -> highlight();
+//        case "highlight" -> highlight();
         case "quit" -> "quit";
         default -> help();
       };
@@ -190,18 +201,36 @@ public class ChessClient {
     return "You successfully left the game.";
   }
 
-  private String redrawGame() {
+  private String redrawGame() throws ResponseException {
     if (gameState == GameState.INACTIVE) {
       return "You are not currently playing a game.";
     }
-    return null;
+
+    return printChessBoard.printBoard();
   }
 
-  private String makeMove() {
+  private String makeMove(String[] params) throws ResponseException {
     if (gameState == GameState.INACTIVE) {
       return "You are not currently playing a game.";
     }
-    return null;
+
+    if (params.length < 4) {
+      throw new ResponseException(500, "Error: too few arguments");
+    }
+    else if (params.length > 4) {
+      throw new ResponseException(500, "Error: too many arguments");
+    }
+
+    ChessPosition startPosition = new ChessPosition(Integer.parseInt(params[0]), Integer.parseInt(params[1]));
+    ChessPosition endPosition = new ChessPosition(Integer.parseInt(params[2]), Integer.parseInt(params[3]));
+    try {
+      ws.makeMove(authToken, gameID, new ChessMove(startPosition, endPosition, null));
+    }
+    catch (Exception e){
+      throw new ResponseException(500, e.getMessage());
+    }
+
+    return "Success, you made a move.";
   }
 
   private String resign() throws ResponseException {
@@ -217,12 +246,15 @@ public class ChessClient {
     return "Success.";
   }
 
-  private String highlight() {
-    if (gameState == GameState.INACTIVE) {
-      return "You are not currently playing a game.";
-    }
-    return null;
-  }
+//  private String highlight() throws ResponseException {
+//    if (gameState == GameState.INACTIVE) {
+//      return "You are not currently playing a game.";
+//    }
+//
+//    ws.highlight(authToken, gameID);
+//    return "Board redrawn.";
+//
+//  }
 
   String help() {
     if (signedState == SignedState.SIGNEDOUT) {
@@ -237,7 +269,7 @@ public class ChessClient {
       return """
               redraw - redraw the chessboard
               leave - leave the game
-              move <ROW> <COLUMN> - make a move to this co-ordinate
+              move <START_ROW> <START_COLUMN> <END_ROW> <END_COLUMN> - make a move from one coordinate to another
               resign - forfeit but don't leave the game, ends the game
               highlight <ROW> <COLUMN> - show possible moves for piece at this co-ordinate
               help - display possible commands
@@ -263,12 +295,11 @@ public class ChessClient {
   }
 
   public String printChessBoard(GameData gameData) {
-    PrintChessBoard printChessBoard;
     if (Objects.equals(gameData.blackUsername(), username)) {
-      printChessBoard = new PrintChessBoard(gameData.game().getBoard(), ChessGame.TeamColor.BLACK);
+      printChessBoard = new PrintChessBoard(gameData.game(), ChessGame.TeamColor.BLACK);
     }
     else {
-      printChessBoard = new PrintChessBoard(gameData.game().getBoard(), ChessGame.TeamColor.WHITE);
+      printChessBoard = new PrintChessBoard(gameData.game(), ChessGame.TeamColor.WHITE);
     }
     return printChessBoard.printBoard();
   }

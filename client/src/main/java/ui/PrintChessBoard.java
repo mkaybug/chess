@@ -1,20 +1,18 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 
+import java.util.Collection;
 import java.util.Objects;
 
 import static ui.EscapeSequences.*;
 
 public class PrintChessBoard {
-  ChessBoard chessBoard;
+  ChessGame chessGame;
   ChessGame.TeamColor teamColor;
 
-  public PrintChessBoard(ChessBoard chessBoard, ChessGame.TeamColor teamColor) {
-    this.chessBoard = chessBoard;
+  public PrintChessBoard(ChessGame chessGame, ChessGame.TeamColor teamColor) {
+    this.chessGame = chessGame;
     this.teamColor = teamColor;
   }
 
@@ -27,6 +25,18 @@ public class PrintChessBoard {
     }
     else {
       return printWhiteTeamBoard();
+    }
+  }
+
+  public String highlightPossibleMoves(int row, int column) {
+    if (Objects.equals(teamColor, ChessGame.TeamColor.WHITE)) {
+      return whiteHighlightMoves(row, column);
+    }
+    else if (Objects.equals(teamColor , ChessGame.TeamColor.BLACK)) {
+      return blackHighlightMoves(row, column);
+    }
+    else {
+      return whiteHighlightMoves(row, column);
     }
   }
 
@@ -79,7 +89,7 @@ public class PrintChessBoard {
       whiteSpace = true;
     }
 
-    ChessPiece piece = chessBoard.getPiece(new ChessPosition(i, j));
+    ChessPiece piece = chessGame.getBoard().getPiece(new ChessPosition(i, j));
 
     if (piece != null) {
       board.append(createPieceString(piece));
@@ -115,5 +125,75 @@ public class PrintChessBoard {
         return square + " P ";
     }
     return null;
+  }
+
+  public String whiteHighlightMoves(int row, int column) {
+    ChessPosition startPosition = new ChessPosition(row, column);
+    Collection<ChessMove> possibleMoves = chessGame.validMoves(startPosition);
+
+    StringBuilder board = new StringBuilder();
+    board.append("\n\u001B[0m" + SET_BG_COLOR_LIGHT_GREY + "    a  b  c  d  e  f  g  h    \u001B[0m\n");
+
+    for (int i = 8; i > 0; i--) {
+      boolean whiteSpace = i % 2 == 0;
+      board.append("\u001B[0m" + SET_BG_COLOR_LIGHT_GREY + " ").append(i).append(" ");
+
+      for (int j = 8; j > 0; j--) {
+        if (possibleMoves.contains(new ChessMove(startPosition, new ChessPosition(i, j), null))) {
+          whiteSpace = createHighlightSquare(board, i, whiteSpace, j);
+        }
+        else {
+          whiteSpace = createSquareString(board, i, whiteSpace, j);
+        }
+      }
+
+      board.append("\u001B[0m" + SET_BG_COLOR_LIGHT_GREY + " ").append(i).append(" \u001B[0m\n");
+    }
+
+    board.append("\u001B[0m" + SET_BG_COLOR_LIGHT_GREY + "    a  b  c  d  e  f  g  h    \u001B[0m\n\n");
+    board.append(SET_TEXT_COLOR_BLUE + "Type help for possible actions.");
+    return String.valueOf(board);
+  }
+
+  public String blackHighlightMoves(int row, int column) {
+    ChessPosition startPosition = new ChessPosition(row, column);
+    Collection<ChessMove> possibleMoves = chessGame.validMoves(startPosition);
+
+    StringBuilder board = new StringBuilder();
+    board.append("\n\u001B[0m" + SET_BG_COLOR_LIGHT_GREY + "    h  g  f  e  d  c  b  a    \u001B[0m\n");
+
+    for (int i = 1; i < 9; i++) {
+      boolean whiteSpace = i % 2 != 0;
+      board.append("\u001B[0m" + SET_BG_COLOR_LIGHT_GREY + " ").append(i).append(" ");
+
+      for (int j = 1; j < 9; j++) {
+        if (possibleMoves.contains(new ChessMove(startPosition, new ChessPosition(i, j), null))) {
+          whiteSpace = createHighlightSquare(board, i, whiteSpace, j);
+        }
+        else {
+          whiteSpace = createSquareString(board, i, whiteSpace, j);
+        }
+      }
+      board.append("\u001B[0m" + SET_BG_COLOR_LIGHT_GREY + " ").append(i).append(" \u001B[0m\n");
+    }
+
+    board.append("\u001B[0m" + SET_BG_COLOR_LIGHT_GREY + "    h  g  f  e  d  c  b  a    \u001B[0m\n\n");
+    board.append(SET_TEXT_COLOR_BLUE + "Type help for possible actions.");
+    return String.valueOf(board);
+  }
+
+  private boolean createHighlightSquare(StringBuilder board, int i, boolean whiteSpace, int j) {
+    whiteSpace = !whiteSpace;
+
+    board.append(SET_BG_COLOR_YELLOW + SET_TEXT_COLOR_DARK_GREY);
+    ChessPiece piece = chessGame.getBoard().getPiece(new ChessPosition(i, j));
+
+    if (piece != null) {
+      board.append(createPieceString(piece));
+    }
+    else {
+      board.append("   ");
+    }
+    return whiteSpace;
   }
 }
