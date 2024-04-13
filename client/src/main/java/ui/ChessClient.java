@@ -221,8 +221,13 @@ public class ChessClient {
       throw new ResponseException(500, "Error: too many arguments");
     }
 
-    ChessPosition startPosition = new ChessPosition(Integer.parseInt(params[0]), Integer.parseInt(params[1]));
-    ChessPosition endPosition = new ChessPosition(Integer.parseInt(params[2]), Integer.parseInt(params[3]));
+    int startColumn = columnLetterToInt(params[0]);
+    int startRow = Integer.parseInt(params[1]);
+    int endColumn = columnLetterToInt(params[2]);
+    int endRow = Integer.parseInt(params[3]);
+
+    ChessPosition startPosition = new ChessPosition(startRow, startColumn);
+    ChessPosition endPosition = new ChessPosition(endRow, endColumn);
     try {
       ws.makeMove(authToken, gameID, new ChessMove(startPosition, endPosition, null));
     }
@@ -230,7 +235,7 @@ public class ChessClient {
       throw new ResponseException(500, e.getMessage());
     }
 
-    return "Success, you made a move.";
+    return "";
   }
 
   private String resign() throws ResponseException {
@@ -247,15 +252,30 @@ public class ChessClient {
   }
 
   private String highlight(String[] params) {
-    if (gameState == GameState.INACTIVE) {
+    if(gameState == GameState.INACTIVE) {
       return "You are not currently playing a game.";
     }
 
-    return printChessBoard.highlightPossibleMoves(Integer.parseInt(params[0]), Integer.parseInt(params[1]));
-
+    int column = columnLetterToInt(params[0]);
+    int row = Integer.parseInt(params[1]);
+    return printChessBoard.highlightPossibleMoves(row, column);
   }
 
-  String help() {
+  private int columnLetterToInt(String columnLetter) {
+    return switch (columnLetter) {
+      case "a" -> 1;
+      case "b" -> 2;
+      case "c" -> 3;
+      case "d" -> 4;
+      case "e" -> 5;
+      case "f" -> 6;
+      case "g" -> 7;
+      case "h" -> 8;
+      default -> throw new IllegalStateException("Unexpected value: " + columnLetter);
+    };
+  }
+
+    String help() {
     if (signedState == SignedState.SIGNEDOUT) {
       return """
                 register <USERNAME> <PASSWORD> <EMAIL> - to create an account

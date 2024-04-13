@@ -56,7 +56,7 @@ public class PrintChessBoard {
     }
 
     board.append("\u001B[0m" + SET_BG_COLOR_LIGHT_GREY + "    a  b  c  d  e  f  g  h    \u001B[0m\n\n");
-    board.append(SET_TEXT_COLOR_BLUE + "Type help for possible actions.");
+    board.append(SET_TEXT_COLOR_BLUE + String.format("It is %s's turn.", chessGame.getTeamTurn().name()) + "\nType help for possible actions.");
     return String.valueOf(board);
   }
 
@@ -75,7 +75,7 @@ public class PrintChessBoard {
     }
 
     board.append("\u001B[0m" + SET_BG_COLOR_LIGHT_GREY + "    h  g  f  e  d  c  b  a    \u001B[0m\n\n");
-    board.append(SET_TEXT_COLOR_BLUE + "Type help for possible actions.");
+    board.append(SET_TEXT_COLOR_BLUE + String.format("It is %s's turn.", chessGame.getTeamTurn().name()) + "\nType help for possible actions.");
     return String.valueOf(board);
   }
 
@@ -127,8 +127,8 @@ public class PrintChessBoard {
     return null;
   }
 
-  public String whiteHighlightMoves(int row, int column) {
-    ChessPosition startPosition = new ChessPosition(row, column);
+  public String whiteHighlightMoves(int column, int row) {
+    ChessPosition startPosition = new ChessPosition(column, row);
     Collection<ChessMove> possibleMoves = chessGame.validMoves(startPosition);
 
     StringBuilder board = new StringBuilder();
@@ -151,7 +151,7 @@ public class PrintChessBoard {
     }
 
     board.append("\u001B[0m" + SET_BG_COLOR_LIGHT_GREY + "    a  b  c  d  e  f  g  h    \u001B[0m\n\n");
-    board.append(SET_TEXT_COLOR_BLUE + "Type help for possible actions.");
+    board.append(SET_TEXT_COLOR_BLUE + String.format("It is %s's turn.", chessGame.getTeamTurn().name()) + "\nType help for possible actions.");
     return String.valueOf(board);
   }
 
@@ -178,7 +178,7 @@ public class PrintChessBoard {
     }
 
     board.append("\u001B[0m" + SET_BG_COLOR_LIGHT_GREY + "    h  g  f  e  d  c  b  a    \u001B[0m\n\n");
-    board.append(SET_TEXT_COLOR_BLUE + "Type help for possible actions.");
+    board.append(SET_TEXT_COLOR_BLUE + String.format("It is %s's turn.", chessGame.getTeamTurn().name()) + "\nType help for possible actions.");
     return String.valueOf(board);
   }
 
